@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TableRow>
+
+        <Button
+            android:id="@+id/verbose_log_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/verbose_log_button_text" />
+
+        <Button
+            android:id="@+id/debug_log_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/debug_log_button_text" />
+    </TableRow>
+
+    <TableRow>
+
+        <Button
+            android:id="@+id/info_log_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/info_log_button_text" />
+
+        <Button
+            android:id="@+id/warn_log_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/warn_log_button_text" />
+    </TableRow>
+
+    <TableRow>
+
+        <Button
+            android:id="@+id/error_log_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/error_log_button_text" />
+
+        <Button
+            android:id="@+id/exception_log_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/exception_log_button_text" />
+    </TableRow>
+
+    <TableRow>
+
+        <Button
+            android:id="@+id/fatal_log_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fatal_log_button_text" />
+
+        <Button
+            android:id="@+id/batch_log"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/batch_log_text" />
+    </TableRow>
+</TableLayout>

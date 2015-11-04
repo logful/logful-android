@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">LogfulSample</string>
+
+    <string name="verbose_log_button_text">verbose log</string>
+    <string name="debug_log_button_text">debug log</string>
+    <string name="info_log_button_text">info log</string>
+    <string name="warn_log_button_text">warn log</string>
+    <string name="error_log_button_text">error log</string>
+    <string name="exception_log_button_text">exception log</string>
+    <string name="fatal_log_button_text">fatal log</string>
+    <string name="batch_log_text">batch log</string>
+    <string name="custom_logger_text">custom logger</string>
+    <string name="crash_button_text">caught crash</string>
+
+    <string name="dlg_title">custom logger</string>
+    <string name="dlg_cancel">@android:string/cancel</string>
+    <string name="dlg_confirm">@android:string/ok</string>
+
+    <string name="label_logger_name">logger name</string>
+    <string name="logger_name_empty_toast">logger name can not be empty</string>
+
+    <string name="upload_button_text">upload</string>
+    <string name="interrupt_upload_button_text">interrupt upload</string>
+
+    <string name="capture_screen_button_text">Capture screen</string>
+</resources>

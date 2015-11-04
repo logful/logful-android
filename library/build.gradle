@@ -1,0 +1,172 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
+
+apply plugin: 'maven'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.1"
+
+    defaultConfig {
+        minSdkVersion 10
+        targetSdkVersion 21
+        versionCode 59281408
+        versionName "1.0.0"
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "http://192.168.14.217:8081/nexus/content/repositories/releases/") {
+                authentication(userName: "admin", password: "admin123")
+            }
+            pom.groupId = "com.getui"
+            pom.artifactId = "logful"
+            pom.version = android.defaultConfig.versionName + "." + android.defaultConfig.versionCode
+        }
+    }
+}
+
+checkstyle {
+    toolVersion = "6.6"
+    reportsDir = file(getArtifactsDir())
+}
+
+task checkstyle(type: Checkstyle) {
+    ignoreFailures false
+    configFile file("${project.rootDir}/ci/config/checkstyle/checkstyle.xml")
+    configProperties.checkstyleSuppressionsPath = file("${project.rootDir}/ci/config/checkstyle/suppressions.xml").absolutePath
+
+    source = fileTree('src/main/java/')
+    include '**/*.java'
+    exclude '**/gen/**'
+    exclude '**/R.java'
+    exclude '**/BuildConfig.java'
+    exclude '**/HttpRequest.java'
+
+    classpath = files()
+
+    reports {
+        xml {
+            destination "${checkstyle.reportsDir}/checkstyle-report.xml"
+        }
+    }
+}
+
+findbugs {
+    toolVersion = "3.0.1"
+    reportsDir = file(getArtifactsDir())
+}
+
+task findbugs(type: FindBugs) {
+    ignoreFailures = true
+    effort = "max"
+    reportLevel = "high"
+    excludeFilter = file("$rootProject.projectDir/ci/config/findbugs/exclude-filter.xml")
+
+    source = fileTree('src/main/java/')
+
+    FileTree tree = fileTree(dir: "$project.buildDir/intermediates/classes")
+    tree.exclude '**/HttpRequest$*.class'
+
+    classes = tree
+    classpath = files()
+
+    reports {
+        xml.enabled = true
+        html.enabled = false
+        xml {
+            destination "${findbugs.reportsDir}/findbugs-report.xml"
+        }
+    }
+}
+
+pmd {
+    toolVersion = "5.1.1"
+    targetJdk = TargetJdk.VERSION_1_7
+    reportsDir = file(getArtifactsDir())
+}
+
+task pmd(type: Pmd) {
+    ignoreFailures = true
+    ruleSetFiles = files("${project.rootDir}/ci/config/pmd/ruleset.xml")
+    ruleSets = []
+
+    source = fileTree('src/main/java/')
+    include '**/*.java'
+    exclude '**/gen/**'
+    exclude '**/R.java'
+    exclude '**/BuildConfig.java'
+    exclude '**/LoggerFactory.java'
+    exclude '**/Installation.java'
+    exclude '**/HttpRequest.java'
+
+    reports {
+        xml.enabled = true
+        html.enabled = false
+        xml {
+            destination "${pmd.reportsDir}/pmd-report.xml"
+        }
+    }
+}
+
+task copyDebugBuildOutput(type: Copy) {
+    def jarName = 'log_lib_debug_' + android.defaultConfig.versionName + '_' + buildTime() + '.jar'
+
+    from('build/intermediates/bundles/debug/')
+    into(getArtifactsDir())
+    include('classes.jar')
+    rename('classes.jar', jarName)
+}
+
+task copyReleaseBuildOutput(type: Copy) {
+    def jarName = 'log_lib_release_' + android.defaultConfig.versionName + '_' + buildTime() + '.jar'
+
+    from('build/intermediates/bundles/release/')
+    into(getArtifactsDir())
+    include('classes.jar')
+    rename('classes.jar', jarName)
+}
+
+def getArtifactsDir() {
+    //noinspection GroovyAssignabilityCheck
+    def artifactsDir = new File(rootProject.projectDir, project.buildOutputDir)
+    if (!artifactsDir.exists()) {
+        artifactsDir.mkdirs()
+    }
+    return artifactsDir
+}
+
+def buildTime() {
+    return new Date().format("yyyyMMdd_HHmmss", TimeZone.getTimeZone("Asia/Shanghai"))
+}
+
+task assembleLibraryDebug(dependsOn: ['assembleDebug', 'copyDebugBuildOutput'])
+task assembleLibraryRelease(dependsOn: ['assembleRelease', 'copyReleaseBuildOutput'])
+
+//noinspection GroovyAssignabilityCheck
+copyDebugBuildOutput.mustRunAfter assembleDebug
+copyReleaseBuildOutput.mustRunAfter assembleRelease

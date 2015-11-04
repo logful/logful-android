@@ -1,0 +1,101 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.1"
+
+    defaultConfig {
+        applicationId "com.getui.logful.sample"
+        minSdkVersion 10
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+def getArtifactsDir() {
+    //noinspection GroovyAssignabilityCheck
+    def artifactsDir = new File(rootProject.projectDir, project.buildOutputDir)
+    if (!artifactsDir.exists()) {
+        artifactsDir.mkdirs()
+    }
+    return artifactsDir
+}
+
+def getApkFileName(variant) {
+    def buildTime = buildTime()
+    def buildTypeName = variant.buildType.name
+    def versionName = variant.mergedFlavor.versionName
+    def versionCode = variant.mergedFlavor.versionCode
+    def type = "${buildTypeName}_${versionName}_${versionCode}"
+    def markFile = new File("$project.buildDir/CI_BUILD_MARK")
+    if (markFile.exists()) {
+        markFile.text = buildTime
+    }
+    return "${project.projectName}_android_${type}_${buildTime}.apk"
+}
+
+def buildTime() {
+    return new Date().format("yyyyMMdd_HHmmss", TimeZone.getTimeZone("Asia/Shanghai"))
+}
+
+def changeAndroidBuildConfig() {
+    android.applicationVariants.all { variant ->
+        def artifactsDir = getArtifactsDir()
+
+        // 拷贝 mapping.txt 至目标目录
+        if (variant.buildType.isMinifyEnabled()) {
+            assemble << {
+                copy {
+                    from variant.mappingFile
+                    into artifactsDir
+                    rename 'mapping.txt', getMapFileName(variant)
+                }
+            }
+        }
+
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                output.outputFile = new File(artifactsDir, getApkFileName(variant))
+            }
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':library')
+    compile 'com.android.support:appcompat-v7:22.2.0'
+}
+
+task buildPrepare << {
+    changeAndroidBuildConfig()
+}
+
+task assembleAppDebug(dependsOn: ['buildPrepare', 'assembleDebug'])
+task assembleAppRelease(dependsOn: ['buildPrepare', 'assembleRelease'])
+
+//noinspection GroovyAssignabilityCheck
+assembleDebug.mustRunAfter buildPrepare
+assembleRelease.mustRunAfter buildPrepare
