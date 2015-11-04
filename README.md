@@ -4,12 +4,13 @@ Logful remote logging sdk for android
 
 [![Build Status](https://travis-ci.org/logful/logful-android.svg?branch=master)](https://travis-ci.org/logful/logful-android)
 
-## Features
+## Dependency
 
-* 1
-* 2
-* 3
-* 4
+```
+dependencies {
+    compile('com.getui:logful:0.2.0')
+}
+```
 
 ## Usage
 
