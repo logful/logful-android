@@ -7,7 +7,6 @@ import android.content.Context;
 import com.getui.logful.LoggerConstants;
 import com.getui.logful.LoggerFactory;
 
-// TODO Aes cipher data to hex string.
 public class CryptoTool {
 
     private static final String TAG = "CryptoTool";
