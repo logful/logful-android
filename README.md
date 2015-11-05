@@ -1,7 +1,7 @@
 # Logful
 
 [![Build Status](https://travis-ci.org/logful/logful-android.svg?branch=master)](https://travis-ci.org/logful/logful-android)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/logful/logful-android/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/logful/logful-android/blob/master/LICENSE)
 
 Logful remote logging sdk for android
 
@@ -59,7 +59,7 @@ logger.verbose(TAG, "verbose message", true);
 ## License
 The MIT License (MIT)
 
-Copyright (c) <year> <copyright holders>
+Copyright (c) 2015 Zhejiang Meiri Hudong Network Technology Co. Ltd.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
