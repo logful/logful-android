@@ -1,8 +1,9 @@
 # Logful
 
-Logful remote logging sdk for android
-
 [![Build Status](https://travis-ci.org/logful/logful-android.svg?branch=master)](https://travis-ci.org/logful/logful-android)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/logful/logful-android/blob/master/LICENSE)
+
+Logful remote logging sdk for android
 
 ## Dependency
 
