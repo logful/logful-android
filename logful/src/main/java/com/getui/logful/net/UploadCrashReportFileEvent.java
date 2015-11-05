@@ -1,7 +1,5 @@
 package com.getui.logful.net;
 
-import java.io.File;
-
 import android.content.Context;
 
 import com.getui.logful.LoggerConstants;
@@ -17,6 +15,8 @@ import com.getui.logful.util.StringUtils;
 import com.getui.logful.util.SystemConfig;
 import com.getui.logful.util.SystemInfo;
 import com.getui.logful.util.UidTool;
+
+import java.io.File;
 
 public class UploadCrashReportFileEvent extends UploadEvent {
 
@@ -56,14 +56,15 @@ public class UploadCrashReportFileEvent extends UploadEvent {
 
         String fileSumString = Checksum.fileMD5(fullPath);
         if (fileSumString == null) {
-            LogUtil.v("UploadCrashReportFileEvent", "Check MD5 " + fullPath + " failed");
+            LogUtil.v(TAG, "Check MD5 " + fullPath + " failed");
             return;
         }
 
+        HttpRequest request = null;
         try {
             String url = SystemConfig.baseUrl() + LoggerConstants.UPLOAD_CRASH_REPORT_FILE_URI;
 
-            HttpRequest request = HttpRequest.post(url);
+            request = HttpRequest.post(url);
             request.header("Authorization", authorization);
 
             request.ignoreCloseExceptions();
@@ -91,6 +92,10 @@ public class UploadCrashReportFileEvent extends UploadEvent {
             }
         } catch (Exception e) {
             LogUtil.e(TAG, "", e);
+        } finally {
+            if (request != null) {
+                request.disconnect();
+            }
         }
     }
 

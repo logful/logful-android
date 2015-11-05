@@ -15,7 +15,7 @@ import com.getui.logful.util.UidTool;
 
 public class UploadSystemInfoEvent extends UploadEvent {
 
-    private static final String TAG = "UploadSystemInfoEvent";
+    private static final String TAG = "UploadSystemInfo";
 
     public interface UploadInfoListener {
         void onResponse(String response);
@@ -43,9 +43,10 @@ public class UploadSystemInfoEvent extends UploadEvent {
             return;
         }
 
+        HttpRequest request = null;
         try {
             String url = SystemConfig.baseUrl() + LoggerConstants.UPLOAD_SYSTEM_INFO_URI;
-            HttpRequest request = HttpRequest.post(url);
+            request = HttpRequest.post(url);
             request.header("Authorization", authorization);
 
             request.ignoreCloseExceptions();
@@ -86,8 +87,11 @@ public class UploadSystemInfoEvent extends UploadEvent {
                 listener.onFailure();
             }
             LogUtil.e(TAG, "Upload user info failed.");
+        } finally {
+            if (request != null) {
+                request.disconnect();
+            }
         }
-
     }
 
 }

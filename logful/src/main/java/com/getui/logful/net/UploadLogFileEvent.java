@@ -1,7 +1,5 @@
 package com.getui.logful.net;
 
-import java.io.File;
-
 import android.content.Context;
 
 import com.getui.logful.LoggerConfigurator;
@@ -21,9 +19,11 @@ import com.getui.logful.util.SystemConfig;
 import com.getui.logful.util.SystemInfo;
 import com.getui.logful.util.UidTool;
 
+import java.io.File;
+
 public class UploadLogFileEvent extends UploadEvent {
 
-    private static final String TAG = "UploadLogFileEvent";
+    private static final String TAG = "UploadLogFile";
 
     private LogFileMeta meta;
 
@@ -82,8 +82,9 @@ public class UploadLogFileEvent extends UploadEvent {
         if (GzipTool.compress(inFilePath, cacheFilePath)) {
             String fileSumString = Checksum.fileMD5(cacheFilePath);
             String url = SystemConfig.baseUrl() + LoggerConstants.UPLOAD_LOG_FILE_URI;
+            HttpRequest request = null;
             try {
-                HttpRequest request = HttpRequest.post(url);
+                request = HttpRequest.post(url);
                 request.header("Authorization", authorization);
 
                 request.ignoreCloseExceptions();
@@ -115,6 +116,10 @@ public class UploadLogFileEvent extends UploadEvent {
                 }
             } catch (Exception e) {
                 LogUtil.e(TAG, "", e);
+            } finally {
+                if (request != null) {
+                    request.disconnect();
+                }
             }
         }
     }

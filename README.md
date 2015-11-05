@@ -1,4 +1,4 @@
-# Logful
+# logful-android
 
 [![Build Status](https://travis-ci.org/logful/logful-android.svg?branch=master)](https://travis-ci.org/logful/logful-android)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/logful/logful-android/blob/master/LICENSE)

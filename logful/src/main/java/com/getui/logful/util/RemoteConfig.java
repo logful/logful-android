@@ -17,7 +17,6 @@ public class RemoteConfig {
         @Override
         public void onResponse(String response) {
             Config config = Config.defaultConfig();
-
             try {
                 JSONObject object = new JSONObject(response);
                 config.setLevel(object.optInt("level"));
@@ -41,7 +40,6 @@ public class RemoteConfig {
             } catch (JSONException e) {
                 LogUtil.e(TAG, "Error parse response data.");
             }
-
             RemoteConfig.parse(config);
         }
 
