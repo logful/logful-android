@@ -18,8 +18,8 @@
 
 #-keepattributes SourceFile,LineNumberTable
 
--keep public class com.getui.log.LoggerFactory { public *; }
--keep public class com.getui.log.Logger { public *; }
--keep public class com.getui.log.LoggerConfigurator { public *; }
--keep public class com.getui.log.annotation.LogProperties { public *; }
--keep public class com.getui.log.Constants { public *; }
+-keep public class com.getui.logful.LoggerFactory { public *; }
+-keep public class com.getui.logful.Logger { public *; }
+-keep public class com.getui.logful.LoggerConfigurator { public *; }
+-keep public class com.getui.logful.annotation.LogProperties { public *; }
+-keep public class com.getui.logful.Constants { public *; }
