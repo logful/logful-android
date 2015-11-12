@@ -12,22 +12,26 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor {
     private Condition condition;
 
     /**
-     * @param corePoolSize The size of the pool
+     * PausableThreadPoolExecutor.
+     *
+     * @param corePoolSize    The size of the pool
      * @param maximumPoolSize The maximum size of the pool
-     * @param keepAliveTime The amount of time you wish to keep a single task alive
-     * @param unit The unit of time that the keep alive time represents
-     * @param workQueue The queue that holds your tasks
+     * @param keepAliveTime   The amount of time you wish to keep a single task alive
+     * @param unit            The unit of time that the keep alive time represents
+     * @param workQueue       The queue that holds your tasks
      * @see {@link ThreadPoolExecutor#ThreadPoolExecutor(int, int, long, TimeUnit, BlockingQueue)}
      */
     public PausableThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
-            BlockingQueue<Runnable> workQueue) {
+                                      BlockingQueue<Runnable> workQueue) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
         lock = new ReentrantLock();
         condition = lock.newCondition();
     }
 
     /**
-     * @param thread The thread being executed
+     * beforeExecute.
+     *
+     * @param thread   The thread being executed
      * @param runnable The runnable task
      * @see {@link ThreadPoolExecutor#beforeExecute(Thread, Runnable)}
      */
@@ -36,8 +40,9 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor {
         super.beforeExecute(thread, runnable);
         lock.lock();
         try {
-            while (isPaused)
+            while (isPaused) {
                 condition.await();
+            }
         } catch (InterruptedException ie) {
             thread.interrupt();
         } finally {
@@ -54,7 +59,7 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor {
     }
 
     /**
-     * Pause the execution
+     * Pause the execution.
      */
     public void pause() {
         lock.lock();
@@ -66,7 +71,7 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor {
     }
 
     /**
-     * Resume pool execution
+     * Resume pool execution.
      */
     public void resume() {
         lock.lock();

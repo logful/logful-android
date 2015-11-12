@@ -49,7 +49,7 @@ public final class FileAppender extends AbstractOutputStreamAppender<FileManager
     }
 
     /**
-     * 判断是否已经达到最大容量
+     * 判断是否已经达到最大容量.
      * 
      * @return 是否达到最大容量
      */
