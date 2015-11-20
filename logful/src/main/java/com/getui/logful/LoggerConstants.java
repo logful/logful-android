@@ -64,9 +64,9 @@ public class LoggerConstants {
 
     public static final boolean DEFAULT_CAUGHT_EXCEPTION = false;
 
-    public static final int[] DEFAULT_UPLOAD_NETWORK_TYPE = new int[] {Constants.TYPE_WIFI, Constants.TYPE_MOBILE};
+    public static final int[] DEFAULT_UPLOAD_NETWORK_TYPE = new int[]{Constants.TYPE_WIFI, Constants.TYPE_MOBILE};
 
-    public static final int[] DEFAULT_UPLOAD_LOG_LEVEL = new int[] {Constants.VERBOSE, Constants.DEBUG, Constants.INFO,
+    public static final int[] DEFAULT_UPLOAD_LOG_LEVEL = new int[]{Constants.VERBOSE, Constants.DEBUG, Constants.INFO,
             Constants.WARN, Constants.ERROR, Constants.EXCEPTION, Constants.FATAL};
 
     public static final long DEFAULT_LOG_FILE_MAX_SIZE = 524288;
@@ -77,7 +77,7 @@ public class LoggerConstants {
 
     public static final String DEFAULT_MSG_LAYOUT = "";
 
-    public static final String API_BASE_URL = "http://192.168.14.198:9600";
+    public static final String API_BASE_URL = "http://demo.logful.aoapp.com:9600";
 
     public static final String CLIENT_AUTH_URI = "/oauth/token";
 
@@ -106,7 +106,7 @@ public class LoggerConstants {
     /**
      * 日志库当前版本.
      */
-    public static final String VERSION = "0.2.0";
+    public static final String VERSION = "0.2.1";
 
     public static final int STATE_ALL = 0x00;
 

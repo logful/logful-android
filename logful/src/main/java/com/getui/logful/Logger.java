@@ -40,7 +40,7 @@ public interface Logger {
 
     /**
      * 打印 verbose 信息.
-     * 
+     *
      * @param tag Tag
      * @param msg Message
      */
@@ -49,8 +49,8 @@ public interface Logger {
     /**
      * 打印 verbose 信息.
      *
-     * @param tag Tag
-     * @param msg Message
+     * @param tag     Tag
+     * @param msg     Message
      * @param capture Capture screen
      */
     void verbose(String tag, String msg, boolean capture);
@@ -66,8 +66,8 @@ public interface Logger {
     /**
      * 打印 debug 信息.
      *
-     * @param tag Tag
-     * @param msg Message
+     * @param tag     Tag
+     * @param msg     Message
      * @param capture Capture screen
      */
     void debug(String tag, String msg, boolean capture);
@@ -83,8 +83,8 @@ public interface Logger {
     /**
      * 打印 info 信息.
      *
-     * @param tag Tag
-     * @param msg Message
+     * @param tag     Tag
+     * @param msg     Message
      * @param capture Capture screen
      */
     void info(String tag, String msg, boolean capture);
@@ -100,8 +100,8 @@ public interface Logger {
     /**
      * 打印 warn 信息.
      *
-     * @param tag Tag
-     * @param msg Message
+     * @param tag     Tag
+     * @param msg     Message
      * @param capture Capture screen
      */
     void warn(String tag, String msg, boolean capture);
@@ -117,8 +117,8 @@ public interface Logger {
     /**
      * 打印 error 信息.
      *
-     * @param tag Tag
-     * @param msg Message
+     * @param tag     Tag
+     * @param msg     Message
      * @param capture Capture screen
      */
     void error(String tag, String msg, boolean capture);
@@ -126,8 +126,8 @@ public interface Logger {
     /**
      * 打印 exception 信息.
      *
-     * @param tag Tag
-     * @param msg Message
+     * @param tag       Tag
+     * @param msg       Message
      * @param throwable Throwable
      */
     void exception(String tag, String msg, Throwable throwable);
@@ -135,10 +135,10 @@ public interface Logger {
     /**
      * 打印 exception 信息.
      *
-     * @param tag Tag
-     * @param msg Message
+     * @param tag       Tag
+     * @param msg       Message
      * @param throwable Throwable
-     * @param capture Capture screen
+     * @param capture   Capture screen
      */
     void exception(String tag, String msg, Throwable throwable, boolean capture);
 
@@ -153,8 +153,8 @@ public interface Logger {
     /**
      * 打印 fatal 信息.
      *
-     * @param tag Tag
-     * @param msg Message
+     * @param tag     Tag
+     * @param msg     Message
      * @param capture Capture screen
      */
     void fatal(String tag, String msg, boolean capture);

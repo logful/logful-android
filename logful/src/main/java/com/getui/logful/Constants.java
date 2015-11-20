@@ -2,8 +2,14 @@ package com.getui.logful;
 
 public class Constants {
 
+    /**
+     * wifi 网络环境.
+     */
     public static final int TYPE_WIFI = 0x01;
 
+    /**
+     * 移动网络环境.
+     */
     public static final int TYPE_MOBILE = 0x02;
 
     /**

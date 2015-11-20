@@ -8,8 +8,8 @@ android {
         applicationId "com.getui.logful.sample"
         minSdkVersion 10
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode 100
+        versionName "0.2.1"
     }
 
     lintOptions {
@@ -52,7 +52,7 @@ def getApkFileName(variant) {
     if (markFile.exists()) {
         markFile.text = buildTime
     }
-    return "${project.projectName}_android_${type}_${buildTime}.apk"
+    return "${project.name}_android_${type}_${buildTime}.apk"
 }
 
 def buildTime() {

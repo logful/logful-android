@@ -109,7 +109,7 @@ public class LoggerConfigurator {
 
     /**
      * 获取当前设置的可以上传日志的网络类型.
-     * 
+     *
      * @return 网络类型
      */
     public synchronized int[] getUploadNetworkType() {
@@ -283,6 +283,11 @@ public class LoggerConfigurator {
         this.defaultMsgLayout = defaultMsgLayout;
     }
 
+    /**
+     * 获取设置的截图压缩质量数值.
+     *
+     * @return 压缩数值
+     */
     public int getScreenshotQuality() {
         if (screenshotQuality >= 1 && screenshotQuality <= 100) {
             return screenshotQuality;
@@ -290,10 +295,20 @@ public class LoggerConfigurator {
         return LoggerConstants.DEFAULT_SCREENSHOT_QUALITY;
     }
 
+    /**
+     * 设置截图压缩质量.
+     *
+     * @param screenshotQuality 压缩数值
+     */
     public void setScreenshotQuality(int screenshotQuality) {
         this.screenshotQuality = screenshotQuality;
     }
 
+    /**
+     * 获取设置的截图缩放比例.
+     *
+     * @return 缩放比例
+     */
     public float getScreenshotScale() {
         if (screenshotScale >= 0.1 && screenshotScale <= 1) {
             return screenshotScale;
@@ -301,6 +316,11 @@ public class LoggerConfigurator {
         return LoggerConstants.DEFAULT_SCREENSHOT_SCALE;
     }
 
+    /**
+     * 设置截图缩放比例.
+     *
+     * @param screenshotScale 缩放比例
+     */
     public void setScreenshotScale(float screenshotScale) {
         this.screenshotScale = screenshotScale;
     }

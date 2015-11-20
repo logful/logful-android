@@ -1,11 +1,10 @@
 package com.getui.logful.util;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.getui.logful.LoggerConstants;
 
 import org.json.JSONObject;
 
-import com.getui.logful.LoggerConstants;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ClientAuthUtil {
 
@@ -27,7 +26,7 @@ public class ClientAuthUtil {
 
     private long expiresIn;
 
-    private List<AuthorizationListener> listenerList = new ArrayList<AuthorizationListener>();
+    private ConcurrentLinkedQueue<AuthorizationListener> listeners = new ConcurrentLinkedQueue<>();
 
     private static class ClassHolder {
         static ClientAuthUtil util = new ClientAuthUtil();
@@ -38,14 +37,12 @@ public class ClientAuthUtil {
     }
 
     public ClientAuthUtil addListener(AuthorizationListener listener) {
-        if (!listenerList.contains(listener)) {
-            listenerList.add(listener);
-        }
+        listeners.add(listener);
         return this;
     }
 
     public ClientAuthUtil removeListener(AuthorizationListener listener) {
-        listenerList.remove(listener);
+        listeners.remove(listener);
         return this;
     }
 
@@ -61,7 +58,7 @@ public class ClientAuthUtil {
         if (!StringUtils.isEmpty(accessToken) && !StringUtils.isEmpty(tokenType)) {
             long diff = (System.currentTimeMillis() - authorizationTime) / 1000;
             if (diff <= expiresIn) {
-                for (AuthorizationListener listener : listenerList) {
+                for (AuthorizationListener listener : listeners) {
                     listener.onAuthorization(accessToken, tokenType);
                 }
             } else {
@@ -77,9 +74,10 @@ public class ClientAuthUtil {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                HttpRequest request = null;
                 try {
                     String url = SystemConfig.baseUrl() + LoggerConstants.CLIENT_AUTH_URI;
-                    HttpRequest request = HttpRequest.post(url);
+                    request = HttpRequest.post(url);
                     request.header("Accept", "application/json");
 
                     String authorization =
@@ -99,19 +97,24 @@ public class ClientAuthUtil {
 
                         authorizationTime = System.currentTimeMillis();
 
-                        for (AuthorizationListener listener : listenerList) {
+                        for (AuthorizationListener listener : listeners) {
                             listener.onAuthorization(accessToken, tokenType);
                         }
+
                     } else {
-                        for (AuthorizationListener listener : listenerList) {
+                        for (AuthorizationListener listener : listeners) {
                             listener.onInvalid();
                         }
                     }
                 } catch (Exception e) {
-                    for (AuthorizationListener listener : listenerList) {
+                    for (AuthorizationListener listener : listeners) {
                         listener.onFailure();
                     }
                     LogUtil.e(TAG, "", e);
+                } finally {
+                    if (request != null) {
+                        request.disconnect();
+                    }
                 }
             }
         }).start();

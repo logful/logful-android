@@ -3,8 +3,20 @@ apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
 
-//apply plugin: 'com.jfrog.bintray'
-//apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "http://192.168.14.217:8081/nexus/content/repositories/releases/") {
+                authentication(userName: "admin", password: "admin123")
+            }
+            pom.groupId = "com.getui"
+            pom.artifactId = "logful"
+            pom.version = "0.2.1"
+        }
+    }
+}
 
 android {
     compileSdkVersion 22
@@ -14,7 +26,7 @@ android {
         minSdkVersion 10
         targetSdkVersion 22
         versionCode 59281408
-        versionName version
+        versionName "0.2.0"
     }
 
     lintOptions {
@@ -37,65 +49,8 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-/*
-def siteUrl = "https://github.com/logful/logful-android"
-def issueUrl = "https://github.com/logful/logful-android/issues"
-def gitUrl = "https://github.com/logful/logful-android.git"
-
-group = "com.getui"
-version = "0.2.0"
-
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-
-    configurations = ['archives'] //When uploading configuration files
-    pkg {
-        repo = 'maven'
-        name = 'Logful'
-        desc = 'Logful android library'
-        websiteUrl = siteUrl
-        issueTrackerUrl = issueUrl
-        vcsUrl = gitUrl
-        licenses = ['MIT']
-        labels = ['aar', 'android', 'logful']
-        publicDownloadNumbers = true
-    }
-}
-
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                name 'Logful android library'
-                url siteUrl
-                licenses {
-                    license {
-                        name 'The MIT License (MIT)'
-                        url 'http://rem.mit-license.org/'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'logful'
-                        name 'Getui'
-                        email 'support@getui.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
-            }
-        }
-    }
-}
-*/
+//apply from: 'library-artifacts.gradle'
+//apply from: 'bintray-release.gradle'
 
 checkstyle {
     toolVersion = "6.6"
@@ -200,7 +155,7 @@ task copyReleaseBuildOutput(type: Copy) {
 
 def getArtifactsDir() {
     //noinspection GroovyAssignabilityCheck
-    def artifactsDir = new File(rootProject.projectDir, project.buildOutputDir)
+    def artifactsDir = new File(rootProject.projectDir, project.BUILD_OUTPUT)
     if (!artifactsDir.exists()) {
         artifactsDir.mkdirs()
     }
