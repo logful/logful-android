@@ -3,9 +3,19 @@
 [![Build Status](https://travis-ci.org/logful/logful-android.svg?branch=master)](https://travis-ci.org/logful/logful-android)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/logful/logful-android/blob/master/LICENSE)
 
-Logful remote logging sdk for android
+Logful logging sdk for Android. Refer to [https://logful.github.io/](https://logful.github.io/) for more information on Logful project.
 
-## Dependency
+## Features
+
+* Easy to setup all stuff within 5mins.
+* Log storage and transportation with compression and encryption.
+* Easy log search by specific log field defined in custom log template, powered by [Graylog](https://www.graylog.org/) opensource log management system.
+* Multiple log control strategies to reviewing log for specific users.
+* Handy screenshot support to diagnosing UI related bugs.
+* Log pre-recording strategy to monitoring hard-to-reproduce bugs.
+
+
+## Android Studio Setup
 
 ```
 dependencies {
@@ -38,7 +48,7 @@ public class MainApplication extends Application {
 
 ``` java
 // Use default logger
-LoggerFactory.debug(TAG, "debug message");
+LoggerFactory.debug(TAG, "debug|message");
 
 // Use custom logger
 Logger logger = LoggerFactory.logger("sample");
@@ -49,7 +59,7 @@ logger.verbose(TAG, "verbose message");
 
 ``` java
 // Use default logger
-LoggerFactory.debug(TAG, "debug message", true);
+LoggerFactory.debug(TAG, "debug|message", true);
 
 // Use custom logger
 Logger logger = LoggerFactory.logger("sample");

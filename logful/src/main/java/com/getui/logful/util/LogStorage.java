@@ -1,7 +1,5 @@
 package com.getui.logful.util;
 
-import java.io.File;
-
 import android.content.Context;
 import android.os.Environment;
 
@@ -10,6 +8,8 @@ import com.getui.logful.LoggerFactory;
 import com.getui.logful.entity.AttachmentFileMeta;
 import com.getui.logful.entity.CrashReportFileMeta;
 import com.getui.logful.entity.LogFileMeta;
+
+import java.io.File;
 
 public class LogStorage {
 
@@ -104,6 +104,8 @@ public class LogStorage {
                 break;
             case LoggerConstants.LOCATION_INTERNAL:
                 dirPath = internalDir(dirName);
+                break;
+            default:
                 break;
         }
         if (dirPath != null) {

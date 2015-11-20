@@ -79,7 +79,7 @@ public class LoggerConfigurator {
     }
 
     /**
-     * 获取默认的 config 配置
+     * 获取默认的 config 配置.
      *
      * @return LoggerConfigurator 配置
      */
