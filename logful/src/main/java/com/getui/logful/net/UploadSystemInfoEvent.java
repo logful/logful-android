@@ -36,8 +36,7 @@ public class UploadSystemInfoEvent extends UploadEvent {
     }
 
     @Override
-    public void authorized(String authorization) {
-        super.authorized(authorization);
+    public void startRequest(String authorization) {
         Context context = LoggerFactory.context();
         if (context == null) {
             return;
@@ -73,7 +72,7 @@ public class UploadSystemInfoEvent extends UploadEvent {
                 }
             } else {
                 if (request.code() == 401) {
-                    ClientAuthUtil.util().clearToken();
+                    ClientAuthUtil.authenticate();
                 }
                 if (!StringUtils.isEmpty(request.body())) {
                     LogUtil.w(TAG, request.body());

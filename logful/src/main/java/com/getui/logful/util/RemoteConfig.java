@@ -1,13 +1,13 @@
 package com.getui.logful.util;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.getui.logful.entity.Config;
 import com.getui.logful.net.UploadSystemInfoEvent;
 import com.getui.logful.net.UploadSystemInfoEvent.UploadInfoListener;
 import com.getui.logful.schedule.ScheduleExecutor;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class RemoteConfig {
 
@@ -49,17 +49,14 @@ public class RemoteConfig {
         }
     };
 
-    private static Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            UploadSystemInfoEvent event = new UploadSystemInfoEvent();
-            event.upload(listener);
-        }
-    };
-
     public static void read() {
-        Thread thread = new Thread(runnable);
-        thread.start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                UploadSystemInfoEvent event = new UploadSystemInfoEvent();
+                event.upload(listener);
+            }
+        }).start();
     }
 
     private static void parse(Config config) {

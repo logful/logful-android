@@ -10,6 +10,7 @@ import com.getui.logful.entity.LogFileMeta;
 import com.getui.logful.util.Checksum;
 import com.getui.logful.util.ClientAuthUtil;
 import com.getui.logful.util.ConnectivityState;
+import com.getui.logful.util.FileUtils;
 import com.getui.logful.util.GzipTool;
 import com.getui.logful.util.HttpRequest;
 import com.getui.logful.util.LogStorage;
@@ -29,10 +30,6 @@ public class UploadLogFileEvent extends UploadEvent {
 
     private String layouts;
 
-    private String filePath;
-
-    private String cacheFilePath;
-
     public UploadLogFileEvent(LogFileMeta meta) {
         this.meta = meta;
     }
@@ -50,9 +47,7 @@ public class UploadLogFileEvent extends UploadEvent {
     }
 
     @Override
-    public void authorized(String authorization) {
-        super.authorized(authorization);
-
+    public void startRequest(String authorization) {
         if (meta == null) {
             return;
         }
@@ -78,7 +73,7 @@ public class UploadLogFileEvent extends UploadEvent {
             cacheDir = context.getCacheDir();
         }
 
-        cacheFilePath = cacheDir + "/" + meta.getFilename();
+        String cacheFilePath = cacheDir + "/" + meta.getFilename();
         if (GzipTool.compress(inFilePath, cacheFilePath)) {
             String fileSumString = Checksum.fileMD5(cacheFilePath);
             String url = SystemConfig.baseUrl() + LoggerConstants.UPLOAD_LOG_FILE_URI;
@@ -102,19 +97,19 @@ public class UploadLogFileEvent extends UploadEvent {
                 request.part("fileSum", fileSumString);
                 request.part("logFile", meta.getFilename(), new File(cacheFilePath));
                 if (request.ok()) {
-                    filePath = inFilePath;
-                    success();
-                    deleteCacheFile();
+                    success(inFilePath);
+                    FileUtils.deleteQuietly(cacheFilePath);
                 } else {
                     if (request.code() == 401) {
-                        ClientAuthUtil.util().clearToken();
+                        ClientAuthUtil.authenticate();
                     }
                     if (!StringUtils.isEmpty(request.body())) {
                         LogUtil.w(TAG, request.body());
                     }
-                    deleteCacheFile();
+                    FileUtils.deleteQuietly(cacheFilePath);
                 }
             } catch (Exception e) {
+                FileUtils.deleteQuietly(cacheFilePath);
                 LogUtil.e(TAG, "", e);
             } finally {
                 if (request != null) {
@@ -124,13 +119,12 @@ public class UploadLogFileEvent extends UploadEvent {
         }
     }
 
-    private void success() {
+    private void success(String filePath) {
         // Update log file meta
         LoggerConfigurator config = LoggerFactory.config();
         if (config != null && config.isDeleteUploadedLogFile()) {
             // 删除已上传的日志文件
-            File file = new File(filePath);
-            if (file.delete()) {
+            if (FileUtils.deleteQuietly(filePath)) {
                 meta.setStatus(LoggerConstants.STATE_DELETED);
                 meta.setDeleteTime(System.currentTimeMillis());
                 DatabaseManager.saveLogFileMeta(meta);
@@ -141,15 +135,6 @@ public class UploadLogFileEvent extends UploadEvent {
         } else {
             meta.setStatus(LoggerConstants.STATE_UPLOADED);
             DatabaseManager.saveLogFileMeta(meta);
-        }
-    }
-
-    private void deleteCacheFile() {
-        if (!StringUtils.isEmpty(cacheFilePath)) {
-            File file = new File(cacheFilePath);
-            if (!file.delete()) {
-                LogUtil.w(TAG, "Delete cache file failed.");
-            }
         }
     }
 }

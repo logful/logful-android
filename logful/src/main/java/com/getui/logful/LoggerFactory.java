@@ -8,10 +8,12 @@ import com.getui.logful.appender.AsyncAppenderManager;
 import com.getui.logful.db.DatabaseManager;
 import com.getui.logful.exception.ExceptionReporter;
 import com.getui.logful.net.TransferManager;
+import com.getui.logful.util.ClientAuthUtil;
 import com.getui.logful.util.LogUtil;
-import com.getui.logful.util.RemoteConfig;
 import com.getui.logful.util.StringUtils;
 import com.getui.logful.util.SystemConfig;
+
+import org.json.JSONObject;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
@@ -20,9 +22,13 @@ import java.util.concurrent.locks.ReentrantLock;
 public class LoggerFactory {
 
     private static final String TAG = "LoggerFactory";
+
     private static Application loggerApplication;
+
     private static Context loggerContext;
+
     private static LoggerConfigurator loggerConfiguration;
+
     private static final Lock lock = new ReentrantLock();
 
     /**
@@ -90,7 +96,7 @@ public class LoggerFactory {
 
     public static void init(Context context) {
         LoggerConfigurator configuration = LoggerConfigurator.build();
-        LoggerFactory.init(context, configuration);
+        LoggerFactory.init(context.getApplicationContext(), configuration);
     }
 
     public static void init(Context context, LoggerConfigurator configuration) {
@@ -104,16 +110,8 @@ public class LoggerFactory {
 
         LogUtil.DEBUG = LoggerFactory.DEBUG;
 
-        LoggerFactory.loggerContext = context;
+        LoggerFactory.loggerContext = context.getApplicationContext();
         LoggerFactory.loggerConfiguration = configuration;
-
-        /*
-         * if (!Installation.installLibrary()) { throw new
-         * RuntimeException("INSTALL CRYPTO LIB FAILED"); }
-         */
-
-        // 载入日志内容加密库.
-        // CryptoTool.loadLibrary();
 
         // 读取系统配置文件.
         SystemConfig.read();
@@ -126,8 +124,9 @@ public class LoggerFactory {
             ExceptionReporter.caught();
         }
 
-        // 读取远程配置.
-        RemoteConfig.read();
+        // 用户授权.
+
+        ClientAuthUtil.authenticate();
 
         LoggerFactory.initialized = true;
 
@@ -167,7 +166,10 @@ public class LoggerFactory {
 
     public static Application application() {
         // TODO May be null
-        return loggerApplication;
+        if (loggerApplication != null) {
+            return loggerApplication;
+        }
+        return null;
     }
 
     public static Context context() {
@@ -276,6 +278,24 @@ public class LoggerFactory {
             AsyncAppenderManager.interrupt();
             TransferManager.uploadLogFile();
             TransferManager.uploadAttachment();
+        }
+    }
+
+    /**
+     * 解析推送控制日志动作链.
+     *
+     * @param transaction 动作链内容
+     */
+    public static void parseTransaction(String transaction) {
+        if (initialized) {
+            try {
+                JSONObject object = new JSONObject(transaction);
+                if (object.has("logful")) {
+                    // TODO
+                }
+            } catch (Exception e) {
+                LogUtil.e(TAG, "", e);
+            }
         }
     }
 

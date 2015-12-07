@@ -10,6 +10,12 @@ android {
         targetSdkVersion 22
         versionCode 100
         versionName "0.2.1"
+        manifestPlaceholders = [
+                GETUI_APP_ID    : "NXsD3hcKyl7orMs78ma5K6",
+                GETUI_APP_KEY   : "4Zh4PgmqaS61nLI7wBGz04",
+                GETUI_APP_SECRET: "yecD1E5kMEAAdmOlBRHpq7",
+                PACKAGE_NAME    : applicationId
+        ]
     }
 
     lintOptions {
@@ -86,6 +92,7 @@ def changeAndroidBuildConfig() {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':logful')
+    compile 'com.igexin:sdk:2.6.4.0'
     compile 'com.android.support:appcompat-v7:22.1.0'
 }
 

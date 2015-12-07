@@ -37,9 +37,7 @@ public class UploadCrashReportFileEvent extends UploadEvent {
     }
 
     @Override
-    public void authorized(String authorization) {
-        super.authorized(authorization);
-
+    public void startRequest(String authorization) {
         if (meta == null) {
             return;
         }
@@ -84,7 +82,7 @@ public class UploadCrashReportFileEvent extends UploadEvent {
                 DatabaseManager.saveCrashFileMeta(meta);
             } else {
                 if (request.code() == 401) {
-                    ClientAuthUtil.util().clearToken();
+                    ClientAuthUtil.authenticate();
                 }
                 if (!StringUtils.isEmpty(request.body())) {
                     LogUtil.w(TAG, request.body());

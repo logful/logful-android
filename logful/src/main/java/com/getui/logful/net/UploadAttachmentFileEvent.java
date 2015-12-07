@@ -38,9 +38,7 @@ public class UploadAttachmentFileEvent extends UploadEvent {
     }
 
     @Override
-    public void authorized(String authorization) {
-        super.authorized(authorization);
-
+    public void startRequest(String authorization) {
         if (meta == null) {
             return;
         }
@@ -86,7 +84,7 @@ public class UploadAttachmentFileEvent extends UploadEvent {
                 success();
             } else {
                 if (request.code() == 401) {
-                    ClientAuthUtil.util().clearToken();
+                    ClientAuthUtil.authenticate();
                 }
                 if (!StringUtils.isEmpty(request.body())) {
                     LogUtil.w(TAG, request.body());

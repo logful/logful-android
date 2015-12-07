@@ -77,7 +77,11 @@ public class LoggerConstants {
 
     public static final String DEFAULT_MSG_LAYOUT = "";
 
-    public static final String API_BASE_URL = "http://demo.logful.aoapp.com:9600";
+    //public static final String API_BASE_URL = "http://demo.logful.aoapp.com:9600";
+
+    public static final String API_BASE_URL = "http://192.168.14.198:8800";
+
+    //public static final String API_BASE_URL = "http://192.168.2.3:9600";
 
     public static final String CLIENT_AUTH_URI = "/oauth/token";
 

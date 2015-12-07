@@ -4,19 +4,15 @@ import com.getui.logful.LoggerConstants;
 
 import org.json.JSONObject;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClientAuthUtil {
 
     private static final String TAG = "ClientAuthUtil";
 
-    public interface AuthorizationListener {
-        void onAuthorization(String token, String tokenType);
+    private AtomicBoolean authorizing = new AtomicBoolean(false);
 
-        void onInvalid();
-
-        void onFailure();
-    }
+    private AtomicBoolean initialized = new AtomicBoolean(false);
 
     private String accessToken;
 
@@ -26,8 +22,6 @@ public class ClientAuthUtil {
 
     private long expiresIn;
 
-    private ConcurrentLinkedQueue<AuthorizationListener> listeners = new ConcurrentLinkedQueue<>();
-
     private static class ClassHolder {
         static ClientAuthUtil util = new ClientAuthUtil();
     }
@@ -36,38 +30,34 @@ public class ClientAuthUtil {
         return ClassHolder.util;
     }
 
-    public ClientAuthUtil addListener(AuthorizationListener listener) {
-        listeners.add(listener);
-        return this;
-    }
-
-    public ClientAuthUtil removeListener(AuthorizationListener listener) {
-        listeners.remove(listener);
-        return this;
-    }
-
-    public ClientAuthUtil clearToken() {
-        accessToken = null;
-        tokenType = null;
-        authorizationTime = 0;
-        expiresIn = 0;
-        return this;
-    }
-
-    public ClientAuthUtil auth() {
-        if (!StringUtils.isEmpty(accessToken) && !StringUtils.isEmpty(tokenType)) {
-            long diff = (System.currentTimeMillis() - authorizationTime) / 1000;
-            if (diff <= expiresIn) {
-                for (AuthorizationListener listener : listeners) {
-                    listener.onAuthorization(accessToken, tokenType);
-                }
-            } else {
-                requestToken();
+    public static boolean authenticated() {
+        ClientAuthUtil util = ClientAuthUtil.util();
+        if (!StringUtils.isEmpty(util.accessToken) && !StringUtils.isEmpty(util.tokenType)) {
+            long diff = (System.currentTimeMillis() - util.authorizationTime) / 1000;
+            if (diff <= util.expiresIn) {
+                return true;
             }
-        } else {
-            requestToken();
         }
-        return this;
+        return false;
+    }
+
+    public static String authorization() {
+        ClientAuthUtil util = ClientAuthUtil.util();
+        if (!StringUtils.isEmpty(util.accessToken) && !StringUtils.isEmpty(util.tokenType)) {
+            return util.tokenType + " " + util.accessToken;
+        }
+        return "";
+    }
+
+    public static void authenticate() {
+        ClientAuthUtil util = ClientAuthUtil.util();
+        if (!util.authorizing.get()) {
+            util.accessToken = null;
+            util.tokenType = null;
+            util.expiresIn = 0;
+            util.authorizing.set(true);
+            util.requestToken();
+        }
     }
 
     private void requestToken() {
@@ -88,34 +78,25 @@ public class ClientAuthUtil {
                     request.header("Authorization", authorization);
                     request.part("grant_type", "client_credentials");
                     request.part("scope", "client");
-
                     if (request.ok()) {
                         JSONObject object = new JSONObject(request.body());
                         accessToken = object.optString("access_token");
                         tokenType = object.optString("token_type");
                         expiresIn = object.optLong("expires_in");
-
                         authorizationTime = System.currentTimeMillis();
-
-                        for (AuthorizationListener listener : listeners) {
-                            listener.onAuthorization(accessToken, tokenType);
-                        }
-
-                    } else {
-                        for (AuthorizationListener listener : listeners) {
-                            listener.onInvalid();
+                        if (!initialized.get()) {
+                            RemoteConfig.read();
+                            initialized.set(true);
                         }
                     }
                 } catch (Exception e) {
-                    for (AuthorizationListener listener : listeners) {
-                        listener.onFailure();
-                    }
                     LogUtil.e(TAG, "", e);
                 } finally {
                     if (request != null) {
                         request.disconnect();
                     }
                 }
+                authorizing.set(false);
             }
         }).start();
     }

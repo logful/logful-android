@@ -7,7 +7,6 @@
 
 #define KEY_PREFIX "A8P20vWlvfSu3JMO6tBjgr05UvjHAh2x"
 #define LOG_TAG "JNI_LOG_TAG"
-#define ERROR "CRYPTO_ERROR"
 
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
@@ -16,7 +15,7 @@ const EVP_CIPHER *cipher;
 const EVP_MD *dgst = NULL;
 const unsigned char *salt = NULL;
 
-jstring
+jbyteArray
 Java_com_getui_logful_util_CryptoTool_encrypt(JNIEnv *env,
                                            jobject obj,
                                            jstring pkg_name,
@@ -37,19 +36,19 @@ Java_com_getui_logful_util_CryptoTool_encrypt(JNIEnv *env,
 
     if (!cipher) {
         LOGE("ENCRYPT_GET_CIPHER_ERROR");
-        return (*env)->NewStringUTF(env, ERROR);
+        return NULL;
     }
 
     if (!dgst) {
         LOGE("ENCRYPT_GET_DIGEST_ERROR");
-        return (*env)->NewStringUTF(env, ERROR);
+        return NULL;
     }
 
     if (!EVP_BytesToKey(cipher, dgst, salt,
                         (unsigned char *) key_char,
                         strlen(key_char), 1, key, iv)) {
         LOGE("ENCRYPT_BYTES_TO_KEY_ERROR");
-        return (*env)->NewStringUTF(env, ERROR);
+        return NULL;
     }
 
     int input_len;
@@ -60,7 +59,7 @@ Java_com_getui_logful_util_CryptoTool_encrypt(JNIEnv *env,
 
     if (!EVP_EncryptInit_ex(&ctx, EVP_aes_256_cbc(), NULL, key, iv)) {
         LOGE("ENCRYPT_INIT_ERROR");
-        return (*env)->NewStringUTF(env, ERROR);
+        return NULL;
     };
 
     input_len = strlen(input) + 1;
@@ -70,25 +69,20 @@ Java_com_getui_logful_util_CryptoTool_encrypt(JNIEnv *env,
     int ciphertext_len = 0;
     if (!EVP_EncryptUpdate(&ctx, cipher_text, &bytes_written, input, input_len)) {
         LOGE("ENCRYPT_UPDATE_ERROR");
-        return (*env)->NewStringUTF(env, ERROR);
+        return NULL;
     };
     ciphertext_len += bytes_written;
 
     if (!EVP_EncryptFinal_ex(&ctx, cipher_text + bytes_written, &bytes_written)) {
         LOGE("ENCRYPT_FINAL_ERROR");
-        return (*env)->NewStringUTF(env, ERROR);
+        return NULL;
     };
     ciphertext_len += bytes_written;
 
     EVP_CIPHER_CTX_cleanup(&ctx);
 
-    char *cipher_text_base64 = base64_encode(cipher_text, ciphertext_len);
-
-    char len[ciphertext_len + 2];
-    sprintf(len, "%d__", ciphertext_len);
-    char *len_str = str_contact(len, cipher_text_base64);
-
-    char *result = base64_encode(len_str, strlen(len_str));
+    jbyteArray data = (*env)->NewByteArray(env, ciphertext_len);
+    (*env)->SetByteArrayRegion(env, data, 0, ciphertext_len, cipher_text);
 
     (*env)->ReleaseStringUTFChars(env, pkg_name, pkg_char);
     (*env)->ReleaseStringUTFChars(env, content, input);
@@ -97,5 +91,5 @@ Java_com_getui_logful_util_CryptoTool_encrypt(JNIEnv *env,
     free(key_contact);
     free(key_char);
 
-    return (*env)->NewStringUTF(env, result);
+    return data;
 }
