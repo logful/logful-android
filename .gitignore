@@ -38,3 +38,5 @@ native/libs/
 native/obj/
 
 artifacts/
+
+native/jnilib.xcodeproj/

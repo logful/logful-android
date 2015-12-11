@@ -17,7 +17,7 @@ public class CryptoTool {
 
         if (appId != null) {
             try {
-                byte[] result = CryptoTool.encrypt(appId, string);
+                byte[] result = CryptoTool.encrypt(appId, string, string.length());
                 if (result != null) {
                     return result;
                 }
@@ -33,5 +33,5 @@ public class CryptoTool {
         System.loadLibrary("logful");
     }
 
-    private static native byte[] encrypt(String appId, String msg);
+    private static native byte[] encrypt(String appId, String text, int textLen);
 }

@@ -92,7 +92,7 @@ def changeAndroidBuildConfig() {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':logful')
-    compile 'com.igexin:sdk:2.6.4.0'
+    //compile 'com.igexin:sdk:2.6.4.0'
     compile 'com.android.support:appcompat-v7:22.1.0'
 }
 
