@@ -124,7 +124,7 @@ public class SystemConfig {
                 }
             }
         } catch (IOException e) {
-            LogUtil.v(TAG, "gtlog.properties file not found.");
+            LogUtil.v(TAG, "logful.properties file not found.");
         } finally {
             if (bufferedReader != null) {
                 try {

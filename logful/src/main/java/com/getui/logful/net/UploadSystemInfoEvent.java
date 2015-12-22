@@ -44,7 +44,7 @@ public class UploadSystemInfoEvent extends UploadEvent {
 
         HttpRequest request = null;
         try {
-            String url = SystemConfig.baseUrl() + LoggerConstants.UPLOAD_SYSTEM_INFO_URI;
+            String url = SystemConfig.baseUrl() + LoggerConstants.UPLOAD_USER_INFO_URI;
             request = HttpRequest.post(url);
             request.header("Authorization", authorization);
 

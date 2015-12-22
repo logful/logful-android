@@ -1,5 +1,7 @@
 package com.getui.logful.util;
 
+import android.util.Base64;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +54,10 @@ public class StringUtils {
             index++;
         }
         return builder.toString();
+    }
+
+    public static String base64Encode(String input) {
+        return Base64.encodeToString(input.getBytes(), Base64.DEFAULT);
     }
 
 }

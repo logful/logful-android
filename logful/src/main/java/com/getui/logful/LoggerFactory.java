@@ -7,8 +7,8 @@ import com.getui.logful.annotation.LogProperties;
 import com.getui.logful.appender.AsyncAppenderManager;
 import com.getui.logful.db.DatabaseManager;
 import com.getui.logful.exception.ExceptionReporter;
+import com.getui.logful.net.ClientUserInitService;
 import com.getui.logful.net.TransferManager;
-import com.getui.logful.util.ClientAuthUtil;
 import com.getui.logful.util.LogUtil;
 import com.getui.logful.util.StringUtils;
 import com.getui.logful.util.SystemConfig;
@@ -125,8 +125,8 @@ public class LoggerFactory {
         }
 
         // 用户授权.
-
-        ClientAuthUtil.authenticate();
+        // ClientAuthUtil.authenticate();
+        ClientUserInitService.authenticate();
 
         LoggerFactory.initialized = true;
 

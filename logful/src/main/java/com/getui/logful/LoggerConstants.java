@@ -42,8 +42,6 @@ public class LoggerConstants {
      */
     public static final String LOG_DIR_NAME = "log";
 
-    public static final String LIBRARY_FILE_NAME = "liblogful.so";
-
     /**
      * 崩溃日志记录文件名称.
      */
@@ -85,7 +83,7 @@ public class LoggerConstants {
 
     public static final String CLIENT_AUTH_URI = "/oauth/token";
 
-    public static final String UPLOAD_SYSTEM_INFO_URI = "/log/info/upload";
+    public static final String UPLOAD_USER_INFO_URI = "/log/info/upload";
 
     public static final String UPLOAD_LOG_FILE_URI = "/log/file/upload";
 
@@ -130,7 +128,7 @@ public class LoggerConstants {
 
     public static final float DEFAULT_SCREENSHOT_SCALE = 0.5f;
 
-    public static final String APP_KEY = "525b8747323d49078a96e49f0189de98";
+    public static final String APP_KEY = "b24a1290e9755c63b9ec5703be91883f";
 
-    public static final String APP_SECRET = "02ce8e2adba94ae5a4807e3f12ea34f3";
+    public static final String APP_SECRET = "3c7f66c0341b6892342b785b235b5455";
 }

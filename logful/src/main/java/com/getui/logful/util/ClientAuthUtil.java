@@ -1,5 +1,7 @@
 package com.getui.logful.util;
 
+import android.util.Log;
+
 import com.getui.logful.LoggerConstants;
 
 import org.json.JSONObject;
@@ -70,11 +72,8 @@ public class ClientAuthUtil {
                     request = HttpRequest.post(url);
                     request.header("Accept", "application/json");
 
-                    String authorization =
-                            String.format(
-                                    "Basic %s",
-                                    HttpRequest.Base64.encode(LoggerConstants.APP_KEY + ":"
-                                            + LoggerConstants.APP_SECRET));
+                    String authorization = "Basic " +
+                            HttpRequest.Base64.encode(LoggerConstants.APP_KEY + ":" + LoggerConstants.APP_SECRET);
                     request.header("Authorization", authorization);
                     request.part("grant_type", "client_credentials");
                     request.part("scope", "client");
@@ -88,6 +87,8 @@ public class ClientAuthUtil {
                             RemoteConfig.read();
                             initialized.set(true);
                         }
+                    } else {
+                        LogUtil.v(TAG, request.body());
                     }
                 } catch (Exception e) {
                     LogUtil.e(TAG, "", e);

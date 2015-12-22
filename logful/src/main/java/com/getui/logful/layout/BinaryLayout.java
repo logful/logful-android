@@ -14,12 +14,12 @@ public class BinaryLayout extends AbstractLayout {
         byte[] timeLenChunk = BytesUtil.shortToBytes(timeLen);
 
         // Tag chunk
-        byte[] tagChunk = CryptoTool.aesEncrypt(logEvent.getTag());
+        byte[] tagChunk = CryptoTool.encryptString(logEvent.getTag());
         short tagLen = (short) tagChunk.length;
         byte[] tagLenChunk = BytesUtil.shortToBytes(tagLen);
 
         // Message chunk
-        byte[] msgChunk = CryptoTool.aesEncrypt(logEvent.getMessage());
+        byte[] msgChunk = CryptoTool.encryptString(logEvent.getMessage());
         short msgLen = (short) msgChunk.length;
         byte[] msgLenChunk = BytesUtil.shortToBytes(msgLen);
 
