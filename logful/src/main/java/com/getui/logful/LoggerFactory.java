@@ -10,10 +10,9 @@ import com.getui.logful.exception.ExceptionReporter;
 import com.getui.logful.net.ClientUserInitService;
 import com.getui.logful.net.TransferManager;
 import com.getui.logful.util.LogUtil;
+import com.getui.logful.util.ParsePassThroughData;
 import com.getui.logful.util.StringUtils;
 import com.getui.logful.util.SystemConfig;
-
-import org.json.JSONObject;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
@@ -312,13 +311,10 @@ public class LoggerFactory {
      *
      * @param transaction 动作链内容
      */
-    public static void parseTransaction(String transaction) {
+    public static void parseTransaction(Context context, String transaction) {
         if (initialized) {
             try {
-                JSONObject object = new JSONObject(transaction);
-                if (object.has("logful")) {
-                    // TODO
-                }
+                ParsePassThroughData.parseData(context, transaction);
             } catch (Exception e) {
                 LogUtil.e(TAG, "", e);
             }
