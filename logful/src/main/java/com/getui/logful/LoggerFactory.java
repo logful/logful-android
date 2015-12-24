@@ -125,7 +125,6 @@ public class LoggerFactory {
         }
 
         // 用户授权.
-        // ClientAuthUtil.authenticate();
         ClientUserInitService.authenticate();
 
         LoggerFactory.initialized = true;
