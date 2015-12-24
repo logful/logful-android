@@ -12,62 +12,62 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 jbyteArray Java_com_getui_logful_util_CryptoTool_security(JNIEnv *env,
-                                                          jobject obj,
-                                                          jbyteArray base_key_data,
-                                                          jbyteArray rsa_key_data,
-                                                          jint rsa_key_len) {
+                                                          jclass clz,
+                                                          jbyteArray key_data,
+                                                          jint key_len,
+                                                          jbyteArray pwd_data,
+                                                          jint pwd_len,
+                                                          jbyteArray salt_data,
+                                                          jint salt_len) {
     jboolean a;
-    jbyte *base_key_bytes = (*env)->GetByteArrayElements(env, base_key_data, &a);
-    char *base_key = (char *) (base_key_bytes);
+    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key_data, &a);
+    char *key = (char *) (key_bytes);
 
     jboolean b;
-    jbyte *rsa_key_bytes = (*env)->GetByteArrayElements(env, rsa_key_data, &b);
-    unsigned char *rsa_key = (unsigned char *) (rsa_key_bytes);
+    jbyte *pwd_bytes = (*env)->GetByteArrayElements(env, pwd_data, &b);
+    char *pwd = (char *) (pwd_bytes);
 
-    LOGD("+++ step 01 +++");
-    
-    BIO *buffer;
-    RSA *public_key;
+    jboolean c;
+    jbyte *salt_bytes = (*env)->GetByteArrayElements(env, salt_data, &c);
+    unsigned char *salt = (unsigned char *) (salt_bytes);
 
-    buffer = BIO_new_mem_buf((void *) rsa_key, (int) rsa_key_len);
-    PEM_read_bio_RSAPublicKey(buffer, &public_key, 0, NULL);
-
-    if (!RSA_check_key(public_key)) {
+    int aes_key_len = 32;
+    unsigned char *aes_key = (unsigned char *) malloc(aes_key_len);
+    if (!PKCS5_PBKDF2_HMAC_SHA1(pwd, (int) pwd_len, salt, (int) salt_len, 50, aes_key_len, aes_key)) {
         return NULL;
     }
 
-    LOGD("+++ step 02 +++");
+    BIO *mem;
+    mem = BIO_new(BIO_s_mem());
+    BIO_puts(mem, key);
 
-    unsigned char *output = NULL;
-    int encrypt_len = RSA_public_encrypt((int) strlen(base_key) + 1,
-                                         (unsigned char *) base_key,
-                                         output,
-                                         public_key,
-                                         RSA_PKCS1_PADDING);
-    if (encrypt_len == -1) {
+    RSA *pub_key = PEM_read_bio_RSA_PUBKEY(mem, NULL, NULL, NULL);
+    if (pub_key == NULL) {
         return NULL;
     }
-    
-    LOGD("+++ step 03 +++");
+    BIO_free(mem);
 
-    RSA_free(public_key);
+    int length = RSA_size(pub_key);
+    unsigned char *out = (unsigned char *) malloc(length);
+    if (!RSA_public_encrypt(aes_key_len, aes_key, out, pub_key, RSA_PKCS1_PADDING)) {
+        return NULL;
+    }
 
-    (*env)->ReleaseByteArrayElements(env, base_key_data, base_key_bytes, JNI_ABORT);
-    (*env)->ReleaseByteArrayElements(env, rsa_key_data, rsa_key_bytes, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, key_data, key_bytes, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, pwd_data, pwd_bytes, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, salt_data, salt_bytes, JNI_ABORT);
 
-    jbyteArray result = (*env)->NewByteArray(env, encrypt_len);
-    (*env)->SetByteArrayRegion(env, result, 0, encrypt_len, (jbyte *) output);
+    jbyteArray result = (*env)->NewByteArray(env, length);
+    (*env)->SetByteArrayRegion(env, result, 0, length, (jbyte *) out);
 
     return result;
 }
 
-
 jbyteArray Java_com_getui_logful_util_CryptoTool_encrypt(JNIEnv *env,
-                                                         jobject obj,
+                                                         jclass clz,
                                                          jbyteArray base_key,
                                                          jbyteArray data,
                                                          jint data_len) {
-
     jboolean a;
     jbyte *key_byte = (*env)->GetByteArrayElements(env, base_key, &a);
     unsigned char *key = (unsigned char *) (key_byte);

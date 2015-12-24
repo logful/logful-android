@@ -73,7 +73,7 @@ public class ClientUserInitService {
                         tokenType = object.optString("token_type");
                         expiresIn = object.optLong("expires_in");
                         authorizationTime = System.currentTimeMillis();
-                        CryptoTool.setPublicKey(object.optString("public_key"));
+                        CryptoTool.addPublicKey(object.optString("public_key"));
 
                         // Send client user report information.
                         sendUserReport();
@@ -90,7 +90,11 @@ public class ClientUserInitService {
     }
 
     private void sendUserReport() {
-        LogUtil.i(TAG, Thread.currentThread().getName());
+        String signature = CryptoTool.securityString();
+        if (StringUtils.isEmpty(signature)) {
+            LogUtil.e(TAG, "Encrypt AES key error!");
+            return;
+        }
         HttpRequest request = null;
         try {
             String url = SystemConfig.baseUrl() + LoggerConstants.UPLOAD_USER_INFO_URI;
@@ -101,8 +105,8 @@ public class ClientUserInitService {
 
             JSONObject object = new JSONObject();
             object.put("sdkVersion", LoggerFactory.version());
-            object.put("signature", "");
-            object.put("chunk", userInformation());
+            object.put("signature", signature);
+            object.put("chunk", "++++++++");
 
             request.send(object.toString().getBytes());
 

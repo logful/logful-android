@@ -2,26 +2,45 @@ package com.getui.logful.util;
 
 import android.util.Base64;
 
-import java.security.PublicKey;
-
-import javax.crypto.Cipher;
-
 public class CryptoTool {
 
     private static final String TAG = "CryptoTool";
 
     private static final String CRYPTO_ERROR = "CRYPTO_ERROR";
 
-    private static String base64Key;
+    private static String pemPublicKeyString;
 
-    private static PublicKey publicKey;
+    private static String securityKeyString;
 
-    public static void setPublicKey(String keyString) {
+    public static void addPublicKey(String keyString) {
+        pemPublicKeyString = keyString;
+    }
+
+    public static String securityString() {
+        if (pemPublicKeyString == null) {
+            return null;
+        }
+        if (!StringUtils.isEmpty(securityKeyString)) {
+            return securityKeyString;
+        }
         try {
-            publicKey = RSAUtil.generatePublicKey(keyString);
+            byte[] keyBytes = pemPublicKeyString.getBytes();
+
+            String password = "jZOrLcEAwLKINd1zO2R13orX0kGnLimO";
+            String salt = "jZOrLcEAwLKINd1zO2R13orX0kGnLimO";
+
+            byte[] pwdBytes = password.getBytes();
+            byte[] saltBytes = salt.getBytes();
+
+            byte[] result = security(keyBytes, keyBytes.length, pwdBytes, pwdBytes.length, saltBytes, saltBytes.length);
+            if (result != null) {
+                securityKeyString = Base64.encodeToString(result, Base64.NO_WRAP);
+                return securityKeyString;
+            }
         } catch (Exception e) {
             LogUtil.e(TAG, "", e);
         }
+        return null;
     }
 
     /**
@@ -30,7 +49,7 @@ public class CryptoTool {
      * @param string String to encrypt
      * @return Encrypted cipher bytes with PKCS#7 padding
      */
-    public static synchronized byte[] encryptString(String string) {
+    public static synchronized byte[] AESEncrypt(String string) {
         byte[] baseKey = "CzUTJo9ChrFJKvJnLBUyYtjOiPz72asS".getBytes();
         try {
             byte[] data = addPadding(string.getBytes());
@@ -69,30 +88,11 @@ public class CryptoTool {
         return output;
     }
 
-    private static String signature(byte[] data) {
-        if (publicKey == null) {
-            return "";
-        }
-        if (!StringUtils.isEmpty(base64Key)) {
-            return base64Key;
-        }
-        try {
-            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            byte[] result = cipher.doFinal(data);
-            base64Key = Base64.encodeToString(result, Base64.NO_WRAP);
-            return base64Key;
-        } catch (Exception e) {
-            LogUtil.e(TAG, "", e);
-        }
-        return "";
-    }
-
     static {
         System.loadLibrary("logful");
     }
 
-    public static native String security(byte[] baseKey, int baseKeyLen);
+    public static native byte[] security(byte[] publicKey, int keyLen, byte[] pwd, int pwdLen, byte[] salt, int saltLen);
 
     private static native byte[] encrypt(byte[] baseKey, byte[] data, int dataLen);
 }

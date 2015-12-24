@@ -11,8 +11,8 @@ public class PlainTextLayout extends AbstractLayout {
 
     @Override
     public synchronized byte[] toBytes(LogEvent logEvent) {
-        byte[] tagBytes = CryptoTool.encryptString(logEvent.getTag());
-        byte[] msgBytes = CryptoTool.encryptString(logEvent.getMessage());
+        byte[] tagBytes = CryptoTool.AESEncrypt(logEvent.getTag());
+        byte[] msgBytes = CryptoTool.AESEncrypt(logEvent.getMessage());
 
         String line = logEvent.getDateString() + "|" + logEvent.getTimeMillis();
 
