@@ -6,18 +6,24 @@ public class CryptoTool {
 
     private static final String TAG = "CryptoTool";
 
-    private static final String CRYPTO_ERROR = "CRYPTO_ERROR";
-
     private static String pemPublicKeyString;
 
     private static String securityKeyString;
+
+    private static byte[] errorBytes = new byte[]{0x00, 0x00};
 
     public static void addPublicKey(String keyString) {
         pemPublicKeyString = keyString;
     }
 
     public static String securityString() {
-        if (pemPublicKeyString == null) {
+        if (StringUtils.isEmpty(pemPublicKeyString)) {
+            return null;
+        }
+        if (StringUtils.isEmpty(SystemConfig.appKey())) {
+            return null;
+        }
+        if (StringUtils.isEmpty(UidTool.uid())) {
             return null;
         }
         if (!StringUtils.isEmpty(securityKeyString)) {
@@ -25,13 +31,8 @@ public class CryptoTool {
         }
         try {
             byte[] keyBytes = pemPublicKeyString.getBytes();
-
-            String password = "jZOrLcEAwLKINd1zO2R13orX0kGnLimO";
-            String salt = "jZOrLcEAwLKINd1zO2R13orX0kGnLimO";
-
-            byte[] pwdBytes = password.getBytes();
-            byte[] saltBytes = salt.getBytes();
-
+            byte[] pwdBytes = SystemConfig.appKey().getBytes();
+            byte[] saltBytes = UidTool.uid().getBytes();
             byte[] result = security(keyBytes, keyBytes.length, pwdBytes, pwdBytes.length, saltBytes, saltBytes.length);
             if (result != null) {
                 securityKeyString = Base64.encodeToString(result, Base64.NO_WRAP);
@@ -50,18 +51,24 @@ public class CryptoTool {
      * @return Encrypted cipher bytes with PKCS#7 padding
      */
     public static synchronized byte[] AESEncrypt(String string) {
-        byte[] baseKey = "CzUTJo9ChrFJKvJnLBUyYtjOiPz72asS".getBytes();
+        if (StringUtils.isEmpty(SystemConfig.appKey())) {
+            return errorBytes;
+        }
+        if (StringUtils.isEmpty(UidTool.uid())) {
+            return errorBytes;
+        }
         try {
+            byte[] pwdBytes = SystemConfig.appKey().getBytes();
+            byte[] saltBytes = UidTool.uid().getBytes();
             byte[] data = addPadding(string.getBytes());
-            byte[] result = CryptoTool.encrypt(baseKey, data, data.length);
+            byte[] result = CryptoTool.encrypt(pwdBytes, pwdBytes.length, saltBytes, saltBytes.length, data, data.length);
             if (result != null) {
                 return result;
             }
         } catch (Throwable throwable) {
             LogUtil.e(TAG, "", throwable);
         }
-
-        return CRYPTO_ERROR.getBytes();
+        return errorBytes;
     }
 
     /**
@@ -94,5 +101,5 @@ public class CryptoTool {
 
     public static native byte[] security(byte[] publicKey, int keyLen, byte[] pwd, int pwdLen, byte[] salt, int saltLen);
 
-    private static native byte[] encrypt(byte[] baseKey, byte[] data, int dataLen);
+    private static native byte[] encrypt(byte[] pwd, int pwdLen, byte[] salt, int saltLen, byte[] data, int dataLen);
 }

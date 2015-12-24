@@ -1,6 +1,7 @@
 package com.getui.logful.net;
 
 import android.content.Context;
+import android.util.Base64;
 
 import com.getui.logful.LoggerConfigurator;
 import com.getui.logful.LoggerConstants;
@@ -8,8 +9,8 @@ import com.getui.logful.LoggerFactory;
 import com.getui.logful.db.DatabaseManager;
 import com.getui.logful.entity.LogFileMeta;
 import com.getui.logful.util.Checksum;
-import com.getui.logful.util.ClientAuthUtil;
 import com.getui.logful.util.ConnectivityState;
+import com.getui.logful.util.CryptoTool;
 import com.getui.logful.util.FileUtils;
 import com.getui.logful.util.GzipTool;
 import com.getui.logful.util.HttpRequest;
@@ -19,6 +20,9 @@ import com.getui.logful.util.StringUtils;
 import com.getui.logful.util.SystemConfig;
 import com.getui.logful.util.SystemInfo;
 import com.getui.logful.util.UidTool;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 
@@ -76,7 +80,48 @@ public class UploadLogFileEvent extends UploadEvent {
         String cacheFilePath = cacheDir + "/" + meta.getFilename();
         if (GzipTool.compress(inFilePath, cacheFilePath)) {
             String fileSumString = Checksum.fileMD5(cacheFilePath);
-            String url = SystemConfig.baseUrl() + LoggerConstants.UPLOAD_LOG_FILE_URI;
+            byte[] data = null;
+            try {
+                JSONObject object = new JSONObject();
+                object.put("platform", LoggerConstants.PLATFORM_ANDROID);
+                object.put("uid", UidTool.uid());
+                object.put("appId", SystemInfo.appId());
+                object.put("loggerName", meta.getLoggerName());
+                object.put("layouts", layouts);
+                object.put("level", meta.getLevel());
+                object.put("fileSum", fileSumString);
+                object.put("alias", SystemConfig.alias());
+                data = CryptoTool.AESEncrypt(object.toString());
+            } catch (Exception e) {
+                LogUtil.e(TAG, "", e);
+            }
+
+            if (data == null) {
+                return;
+            }
+
+            String signature = CryptoTool.securityString();
+            if (StringUtils.isEmpty(signature)) {
+                LogUtil.e(TAG, "Encrypt AES key error!");
+                return;
+            }
+
+            String payload = null;
+            try {
+                JSONObject payloadObject = new JSONObject();
+                payloadObject.put("sdkVersion", LoggerFactory.version());
+                payloadObject.put("signature", signature);
+                payloadObject.put("chunk", Base64.encodeToString(data, Base64.NO_WRAP));
+                payload = payloadObject.toString();
+            } catch (JSONException e) {
+                LogUtil.e(TAG, "", e);
+            }
+
+            if (StringUtils.isEmpty(payload)) {
+                return;
+            }
+
+            String url = SystemConfig.apiUrl(LoggerConstants.UPLOAD_LOG_FILE_URI);
             HttpRequest request = null;
             try {
                 request = HttpRequest.post(url);
@@ -86,26 +131,10 @@ public class UploadLogFileEvent extends UploadEvent {
                 request.connectTimeout(LoggerConstants.DEFAULT_HTTP_REQUEST_TIMEOUT);
                 request.readTimeout(LoggerConstants.DEFAULT_HTTP_REQUEST_TIMEOUT);
 
-                request.part("platform", "android");
-                request.part("sdkVersion", LoggerFactory.version());
-                request.part("uid", UidTool.uid(context));
-                request.part("appId", SystemInfo.appId());
-                request.part("loggerName", meta.getLoggerName());
-                request.part("layouts", layouts);
-                request.part("level", String.valueOf(meta.getLevel()));
-                request.part("alias", SystemConfig.alias());
-                request.part("fileSum", fileSumString);
+                request.part("payload", payload);
                 request.part("logFile", meta.getFilename(), new File(cacheFilePath));
-                if (request.ok()) {
+                if (request.code() == 202) {
                     success(inFilePath);
-                    FileUtils.deleteQuietly(cacheFilePath);
-                } else {
-                    if (request.code() == 401) {
-                        ClientAuthUtil.authenticate();
-                    }
-                    if (!StringUtils.isEmpty(request.body())) {
-                        LogUtil.w(TAG, request.body());
-                    }
                     FileUtils.deleteQuietly(cacheFilePath);
                 }
             } catch (Exception e) {

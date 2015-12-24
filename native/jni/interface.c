@@ -7,9 +7,14 @@
 #include <string.h>
 
 #define LOG_TAG "JNI_LOG_TAG"
-
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+
+#define AES_KEY_SIZE 32
+
+int calculate_aes_key(const char *pwd, int pwd_len, const unsigned char *salt, int salt_len);
+
+static unsigned char *aes_key = NULL;
 
 jbyteArray Java_com_getui_logful_util_CryptoTool_security(JNIEnv *env,
                                                           jclass clz,
@@ -31,9 +36,7 @@ jbyteArray Java_com_getui_logful_util_CryptoTool_security(JNIEnv *env,
     jbyte *salt_bytes = (*env)->GetByteArrayElements(env, salt_data, &c);
     unsigned char *salt = (unsigned char *) (salt_bytes);
 
-    int aes_key_len = 32;
-    unsigned char *aes_key = (unsigned char *) malloc(aes_key_len);
-    if (!PKCS5_PBKDF2_HMAC_SHA1(pwd, (int) pwd_len, salt, (int) salt_len, 50, aes_key_len, aes_key)) {
+    if (!calculate_aes_key(pwd, (int) pwd_len, salt, (int) salt_len)) {
         return NULL;
     }
 
@@ -49,7 +52,7 @@ jbyteArray Java_com_getui_logful_util_CryptoTool_security(JNIEnv *env,
 
     int length = RSA_size(pub_key);
     unsigned char *out = (unsigned char *) malloc(length);
-    if (!RSA_public_encrypt(aes_key_len, aes_key, out, pub_key, RSA_PKCS1_PADDING)) {
+    if (!RSA_public_encrypt(AES_KEY_SIZE, aes_key, out, pub_key, RSA_PKCS1_PADDING)) {
         return NULL;
     }
 
@@ -65,21 +68,34 @@ jbyteArray Java_com_getui_logful_util_CryptoTool_security(JNIEnv *env,
 
 jbyteArray Java_com_getui_logful_util_CryptoTool_encrypt(JNIEnv *env,
                                                          jclass clz,
-                                                         jbyteArray base_key,
+                                                         jbyteArray pwd_data,
+                                                         jint pwd_len,
+                                                         jbooleanArray salt_data,
+                                                         jint salt_len,
                                                          jbyteArray data,
                                                          jint data_len) {
+
     jboolean a;
-    jbyte *key_byte = (*env)->GetByteArrayElements(env, base_key, &a);
-    unsigned char *key = (unsigned char *) (key_byte);
+    jbyte *pwd_bytes = (*env)->GetByteArrayElements(env, pwd_data, &a);
+    char *pwd = (char *) (pwd_bytes);
 
     jboolean b;
-    jbyte *data_byte = (*env)->GetByteArrayElements(env, data, &b);
-    unsigned char *plain_text = (unsigned char *) (data_byte);
+    jbyte *salt_bytes = (*env)->GetByteArrayElements(env, salt_data, &b);
+    unsigned char *salt = (unsigned char *) (salt_bytes);
+
+    if (!calculate_aes_key(pwd, (int) pwd_len, salt, (int) salt_len)) {
+        (*env)->ReleaseByteArrayElements(env, pwd_data, pwd_bytes, JNI_ABORT);
+        (*env)->ReleaseByteArrayElements(env, salt_data, salt_bytes, JNI_ABORT);
+        return NULL;
+    }
+
+    (*env)->ReleaseByteArrayElements(env, pwd_data, pwd_bytes, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, salt_data, salt_bytes, JNI_ABORT);
 
     EVP_CIPHER_CTX ctx;
     EVP_CIPHER_CTX_init(&ctx);
 
-    if (!EVP_EncryptInit_ex(&ctx, EVP_aes_256_ecb(), NULL, key, NULL)) {
+    if (!EVP_EncryptInit_ex(&ctx, EVP_aes_256_ecb(), NULL, aes_key, NULL)) {
         return NULL;
     };
 
@@ -87,8 +103,11 @@ jbyteArray Java_com_getui_logful_util_CryptoTool_encrypt(JNIEnv *env,
         return NULL;
     }
 
-    unsigned char *cipher_text = (unsigned char *) malloc(data_len + EVP_CIPHER_CTX_block_size(&ctx));
+    jboolean c;
+    jbyte *data_bytes = (*env)->GetByteArrayElements(env, data, &c);
+    unsigned char *plain_text = (unsigned char *) (data_bytes);
 
+    unsigned char *cipher_text = (unsigned char *) malloc(data_len + EVP_CIPHER_CTX_block_size(&ctx));
     int bytes_written = 0;
     int ciphertext_len = 0;
     if (!EVP_EncryptUpdate(&ctx, cipher_text, &bytes_written, plain_text, data_len)) {
@@ -97,13 +116,11 @@ jbyteArray Java_com_getui_logful_util_CryptoTool_encrypt(JNIEnv *env,
     ciphertext_len += bytes_written;
 
     if (!EVP_EncryptFinal_ex(&ctx, cipher_text + bytes_written, &bytes_written)) {
-
         return NULL;
     };
     ciphertext_len += bytes_written;
 
-    (*env)->ReleaseByteArrayElements(env, base_key, key_byte, JNI_ABORT);
-    (*env)->ReleaseByteArrayElements(env, data, data_byte, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, data, data_bytes, JNI_ABORT);
 
     jbyteArray result = (*env)->NewByteArray(env, ciphertext_len);
     (*env)->SetByteArrayRegion(env, result, 0, ciphertext_len, (jbyte *) cipher_text);
@@ -113,4 +130,16 @@ jbyteArray Java_com_getui_logful_util_CryptoTool_encrypt(JNIEnv *env,
     EVP_CIPHER_CTX_cleanup(&ctx);
 
     return result;
+}
+
+int calculate_aes_key(const char *pwd, int pwd_len, const unsigned char *salt, int salt_len) {
+    if (aes_key != NULL) {
+        return 1;
+    }
+    aes_key = (unsigned char *) malloc(AES_KEY_SIZE);
+    if (!PKCS5_PBKDF2_HMAC_SHA1(pwd, pwd_len, salt, salt_len, 50, AES_KEY_SIZE, aes_key)) {
+        free(aes_key);
+        return 0;
+    }
+    return 1;
 }

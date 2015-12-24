@@ -7,11 +7,9 @@ import com.getui.logful.LoggerFactory;
 import com.getui.logful.db.DatabaseManager;
 import com.getui.logful.entity.CrashReportFileMeta;
 import com.getui.logful.util.Checksum;
-import com.getui.logful.util.ClientAuthUtil;
 import com.getui.logful.util.HttpRequest;
 import com.getui.logful.util.LogStorage;
 import com.getui.logful.util.LogUtil;
-import com.getui.logful.util.StringUtils;
 import com.getui.logful.util.SystemConfig;
 import com.getui.logful.util.SystemInfo;
 import com.getui.logful.util.UidTool;
@@ -71,7 +69,7 @@ public class UploadCrashReportFileEvent extends UploadEvent {
 
             request.part("platform", "android");
             request.part("sdkVersion", LoggerFactory.version());
-            request.part("uid", UidTool.uid(context));
+            request.part("uid", UidTool.uid());
             request.part("appId", SystemInfo.appId());
             request.part("fileSum", fileSumString);
             request.part("reportFile", meta.getFilename(), new File(fullPath));
@@ -80,13 +78,6 @@ public class UploadCrashReportFileEvent extends UploadEvent {
                 meta.setFileMD5(fileSumString);
                 meta.setStatus(LoggerConstants.STATE_UPLOADED);
                 DatabaseManager.saveCrashFileMeta(meta);
-            } else {
-                if (request.code() == 401) {
-                    ClientAuthUtil.authenticate();
-                }
-                if (!StringUtils.isEmpty(request.body())) {
-                    LogUtil.w(TAG, request.body());
-                }
             }
         } catch (Exception e) {
             LogUtil.e(TAG, "", e);

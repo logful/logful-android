@@ -1,13 +1,11 @@
 package com.getui.logful.net;
 
-import com.getui.logful.util.ClientAuthUtil;
-
 public abstract class UploadEvent implements Runnable {
 
     @Override
     public void run() {
-        if (ClientAuthUtil.authenticated()) {
-            startRequest(ClientAuthUtil.authorization());
+        if (ClientUserInitService.authenticated()) {
+            startRequest(ClientUserInitService.authorization());
         }
     }
 

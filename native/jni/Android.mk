@@ -8,10 +8,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := logful
-LOCAL_SRC_FILES := \
-	base64.c \
-	util.c \
-	interface.c
+LOCAL_SRC_FILES := interface.c
 LOCAL_LDLIBS += -llog
 LOCAL_SHARED_LIBRARIES := lib_crypto
 include $(BUILD_SHARED_LIBRARY)

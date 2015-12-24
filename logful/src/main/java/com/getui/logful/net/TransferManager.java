@@ -93,19 +93,6 @@ public class TransferManager {
     }
 
     /**
-     * 上传系统环境信息.
-     */
-    public static void uploadSystemInfo() {
-        if (!ConnectivityState.shouldUpload()) {
-            return;
-        }
-
-        TransferManager manager = manager();
-        UploadSystemInfoEvent event = new UploadSystemInfoEvent();
-        manager.addEvent(event);
-    }
-
-    /**
      * 上传崩溃日志文件.
      */
     public static void uploadCrashReport() {

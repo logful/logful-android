@@ -8,13 +8,20 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Environment;
 
+import com.getui.logful.LoggerFactory;
+
 public class UidTool {
     private static final String TAG = "UidTool";
 
     private static String uid;
     private static final String UID_DIR = ".LogfulConfig";
 
-    public static String uid(Context context) {
+    public static String uid() {
+        Context context = LoggerFactory.context();
+        if (context == null) {
+            return "";
+        }
+
         if (!StringUtils.isEmpty(UidTool.uid)) {
             return UidTool.uid;
         }
@@ -107,6 +114,5 @@ public class UidTool {
         }
         return "";
     }
-
 
 }

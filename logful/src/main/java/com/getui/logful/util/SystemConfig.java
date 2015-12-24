@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 
 public class SystemConfig {
@@ -21,6 +20,10 @@ public class SystemConfig {
     private String baseUrl;
 
     private String aliasName;
+
+    private String appKeyString;
+
+    private String appSecretString;
 
     private boolean on;
 
@@ -45,9 +48,7 @@ public class SystemConfig {
         if (context == null) {
             return;
         }
-
         SystemConfig config = SystemConfig.config();
-        config.readAssetConfigFile(context);
         config.readProperties(context);
     }
 
@@ -65,6 +66,27 @@ public class SystemConfig {
             return LoggerConstants.API_BASE_URL;
         }
         return config.baseUrl;
+    }
+
+    public static String apiUrl(String uri) {
+        SystemConfig config = SystemConfig.config();
+        return config.baseUrl + uri;
+    }
+
+    public static String appKey() {
+        SystemConfig config = SystemConfig.config();
+        if (!StringUtils.isEmpty(config.appKeyString)) {
+            return config.appKeyString;
+        }
+        return "";
+    }
+
+    public static String appSecret() {
+        SystemConfig config = SystemConfig.config();
+        if (!StringUtils.isEmpty(config.appSecretString)) {
+            return config.appSecretString;
+        }
+        return "";
     }
 
     public static boolean isOn() {
@@ -85,6 +107,21 @@ public class SystemConfig {
         config.aliasName = alias;
     }
 
+    public static synchronized void saveBaseUrl(String baseUrl) {
+        SystemConfig config = SystemConfig.config();
+        config.baseUrl = baseUrl;
+    }
+
+    public static synchronized void saveAppKey(String appKey) {
+        SystemConfig config = SystemConfig.config();
+        config.appKeyString = appKey;
+    }
+
+    public static synchronized void saveAppSecret(String appSecret) {
+        SystemConfig config = SystemConfig.config();
+        config.appSecretString = appSecret;
+    }
+
     /**
      * 保存日志系统状态.
      *
@@ -95,44 +132,6 @@ public class SystemConfig {
         if (config.on != on) {
             config.on = on;
             config.writeProperties();
-        }
-    }
-
-    /**
-     * 读取用户 Asset 配置文件.
-     *
-     * @param context {@link Context}
-     */
-    private void readAssetConfigFile(Context context) {
-        BufferedReader bufferedReader = null;
-        try {
-            String filename = LoggerConstants.USER_CONFIG_ASSET_FILE_NAME;
-            bufferedReader = new BufferedReader(new InputStreamReader(context.getAssets().open(filename)));
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                if (line.length() > 0 && line.charAt(0) != '#') {
-                    String[] keyValue = line.split("=");
-                    if (keyValue.length == 2) {
-                        String key = keyValue[0];
-                        String value = keyValue[1];
-                        if (key.equalsIgnoreCase("baseUrl")) {
-                            if (value.length() > 0) {
-                                baseUrl = value;
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            LogUtil.v(TAG, "logful.properties file not found.");
-        } finally {
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (IOException e) {
-                    LogUtil.v(TAG, "Close buffered reader failed.");
-                }
-            }
         }
     }
 

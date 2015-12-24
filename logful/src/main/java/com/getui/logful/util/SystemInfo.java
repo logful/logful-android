@@ -6,7 +6,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.provider.Settings;
 import android.telephony.TelephonyManager;
 
 import com.getui.logful.LoggerFactory;
@@ -57,18 +56,8 @@ public class SystemInfo {
         }
     }
 
-    public static String androidId(Context context) {
-        if (context == null) {
-            return "";
-        }
-        String androidId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        if (androidId != null && !androidId.equals("9774d56d682e549c")) {
-            return androidId;
-        }
-        return "";
-    }
-
-    public static String imei(Context context) {
+    public static String imei() {
+        Context context = LoggerFactory.context();
         if (context == null) {
             return "";
         }
@@ -85,7 +74,8 @@ public class SystemInfo {
         return "";
     }
 
-    public static String macAddress(Context context) {
+    public static String macAddress() {
+        Context context = LoggerFactory.context();
         if (context == null) {
             return "";
         }

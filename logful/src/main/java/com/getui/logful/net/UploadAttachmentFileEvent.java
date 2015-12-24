@@ -7,7 +7,6 @@ import com.getui.logful.LoggerFactory;
 import com.getui.logful.db.DatabaseManager;
 import com.getui.logful.entity.AttachmentFileMeta;
 import com.getui.logful.util.Checksum;
-import com.getui.logful.util.ClientAuthUtil;
 import com.getui.logful.util.ConnectivityState;
 import com.getui.logful.util.HttpRequest;
 import com.getui.logful.util.LogStorage;
@@ -75,20 +74,13 @@ public class UploadAttachmentFileEvent extends UploadEvent {
 
             request.part("platform", "android");
             request.part("sdkVersion", LoggerFactory.version());
-            request.part("uid", UidTool.uid(context));
+            request.part("uid", UidTool.uid());
             request.part("appId", SystemInfo.appId());
             request.part("fileSum", sum);
             request.part("attachmentId", meta.getSequence());
             request.part("attachmentFile", meta.getFilename(), new File(inFilePath));
             if (request.ok()) {
                 success();
-            } else {
-                if (request.code() == 401) {
-                    ClientAuthUtil.authenticate();
-                }
-                if (!StringUtils.isEmpty(request.body())) {
-                    LogUtil.w(TAG, request.body());
-                }
             }
         } catch (Exception e) {
             LogUtil.e(TAG, "", e);

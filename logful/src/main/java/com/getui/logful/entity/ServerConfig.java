@@ -1,31 +1,29 @@
 package com.getui.logful.entity;
 
-public class Config {
+import org.json.JSONObject;
 
-    private int level;
+public class ServerConfig {
 
-    private int targetLevel;
-
-    private boolean shouldUpload;
-
+    private boolean granted;
     private int scheduleType;
-
     private long scheduleTime;
-
     private String[] scheduleArray;
 
-    public static Config defaultConfig() {
-        Config config = new Config();
-        config.setShouldUpload(false);
-        return config;
+    public ServerConfig(JSONObject object) {
+        // TODO
+        if (object.has("granted")) {
+            this.granted = object.optBoolean("granted");
+        } else {
+            throw new IllegalArgumentException("Not granted field!");
+        }
     }
 
-    public boolean isShouldUpload() {
-        return shouldUpload;
+    public boolean isGranted() {
+        return granted;
     }
 
-    public void setShouldUpload(boolean shouldUpload) {
-        this.shouldUpload = shouldUpload;
+    public void setGranted(boolean granted) {
+        this.granted = granted;
     }
 
     public int getScheduleType() {
@@ -34,14 +32,6 @@ public class Config {
 
     public void setScheduleType(int scheduleType) {
         this.scheduleType = scheduleType;
-    }
-
-    public void setLevel(int level) {
-        this.level = level;
-    }
-
-    public void setTargetLevel(int targetLevel) {
-        this.targetLevel = targetLevel;
     }
 
     public long getScheduleTime() {

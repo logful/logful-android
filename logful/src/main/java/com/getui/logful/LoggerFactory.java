@@ -177,6 +177,33 @@ public class LoggerFactory {
     }
 
     /**
+     * Set api base url.
+     *
+     * @param apiUrl Api base url string
+     */
+    public static void setApiUrl(String apiUrl) {
+        SystemConfig.saveBaseUrl(apiUrl);
+    }
+
+    /**
+     * Set app key.
+     *
+     * @param appKey App key string
+     */
+    public static void setAppKey(String appKey) {
+        SystemConfig.saveAppKey(appKey);
+    }
+
+    /**
+     * Set app secret.
+     *
+     * @param appSecret App secret string
+     */
+    public static void setAppSecret(String appSecret) {
+        SystemConfig.saveAppSecret(appSecret);
+    }
+
+    /**
      * 获取当前日志库版本.
      *
      * @return version string

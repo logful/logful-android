@@ -75,11 +75,7 @@ public class LoggerConstants {
 
     public static final String DEFAULT_MSG_LAYOUT = "";
 
-    //public static final String API_BASE_URL = "http://demo.logful.aoapp.com:9600";
-
-    public static final String API_BASE_URL = "http://192.168.14.198:8800";
-
-    //public static final String API_BASE_URL = "http://192.168.2.3:9600";
+    public static final String API_BASE_URL = "http://demo.logful.aoapp.com:9600";
 
     public static final String CLIENT_AUTH_URI = "/oauth/token";
 
@@ -91,7 +87,7 @@ public class LoggerConstants {
 
     public static final String UPLOAD_ATTACHMENT_FILE_URI = "/log/attachment/upload";
 
-    public static final int DEFAULT_HTTP_REQUEST_TIMEOUT = 5000;
+    public static final int DEFAULT_HTTP_REQUEST_TIMEOUT = 6000;
 
     public static final String CHARSET = "UTF-8";
 
@@ -99,11 +95,6 @@ public class LoggerConstants {
      * 系统配置文件名称.
      */
     public static final String SYSTEM_CONFIG_FILE_NAME = "logful_system_config.bin";
-
-    /**
-     * 用户自定义配置.
-     */
-    public static final String USER_CONFIG_ASSET_FILE_NAME = "logful.properties";
 
     /**
      * 日志库当前版本.
@@ -128,7 +119,5 @@ public class LoggerConstants {
 
     public static final float DEFAULT_SCREENSHOT_SCALE = 0.5f;
 
-    public static final String APP_KEY = "b24a1290e9755c63b9ec5703be91883f";
-
-    public static final String APP_SECRET = "3c7f66c0341b6892342b785b235b5455";
+    public static final int PLATFORM_ANDROID = 1;
 }
