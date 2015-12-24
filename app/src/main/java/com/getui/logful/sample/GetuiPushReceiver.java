@@ -20,7 +20,7 @@ public class GetuiPushReceiver extends BroadcastReceiver {
                 byte[] payload = bundle.getByteArray("payload");
                 if (payload != null) {
                     String data = new String(payload);
-                    LoggerFactory.parseTransaction(data);
+                    LoggerFactory.parseTransaction(context, data);
                 }
                 break;
             default:
