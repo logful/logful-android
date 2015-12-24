@@ -3,6 +3,10 @@ package com.getui.logful.sample;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+
+import com.getui.logful.LoggerFactory;
+import com.igexin.sdk.PushConsts;
 
 public class GetuiPushReceiver extends BroadcastReceiver {
 
@@ -10,7 +14,6 @@ public class GetuiPushReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        /*
         Bundle bundle = intent.getExtras();
         switch (bundle.getInt(PushConsts.CMD_ACTION)) {
             case PushConsts.GET_MSG_DATA:
@@ -23,6 +26,5 @@ public class GetuiPushReceiver extends BroadcastReceiver {
             default:
                 break;
         }
-        */
     }
 }
