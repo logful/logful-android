@@ -14,7 +14,7 @@ public class ServerConfig {
         if (object.has("granted")) {
             this.granted = object.optBoolean("granted");
         } else {
-            throw new IllegalArgumentException("Not granted field!");
+            throw new IllegalArgumentException("No granted field!");
         }
     }
 

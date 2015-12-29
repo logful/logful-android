@@ -74,7 +74,6 @@ jbyteArray Java_com_getui_logful_util_CryptoTool_encrypt(JNIEnv *env,
                                                          jint salt_len,
                                                          jbyteArray data,
                                                          jint data_len) {
-
     jboolean a;
     jbyte *pwd_bytes = (*env)->GetByteArrayElements(env, pwd_data, &a);
     char *pwd = (char *) (pwd_bytes);

@@ -52,7 +52,7 @@ public class UploadCrashReportFileEvent extends UploadEvent {
 
         String fileSumString = Checksum.fileMD5(fullPath);
         if (fileSumString == null) {
-            LogUtil.v(TAG, "Check MD5 " + fullPath + " failed");
+            LogUtil.w(TAG, "Check MD5 " + fullPath + " failed!");
             return;
         }
 

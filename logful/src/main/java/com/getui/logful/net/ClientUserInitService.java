@@ -28,6 +28,8 @@ public class ClientUserInitService {
 
     private long expiresIn;
 
+    private ServerConfig config;
+
     private static class ClassHolder {
         static ClientUserInitService service = new ClientUserInitService();
     }
@@ -36,8 +38,14 @@ public class ClientUserInitService {
         return ClassHolder.service;
     }
 
+    public static boolean granted() {
+        ClientUserInitService service = service();
+        return service.config != null && service._authenticated() && service.config.isGranted();
+    }
+
     public static boolean authenticated() {
-        return true;
+        ClientUserInitService service = service();
+        return service._authenticated();
     }
 
     public static String authorization() {
@@ -50,7 +58,11 @@ public class ClientUserInitService {
         service._authenticate();
     }
 
-    public String _authorization() {
+    private boolean _authenticated() {
+        return !StringUtils.isEmpty(tokenType) && !StringUtils.isEmpty(accessToken);
+    }
+
+    private String _authorization() {
         if (!StringUtils.isEmpty(tokenType) && !StringUtils.isEmpty(accessToken)) {
             return tokenType + " " + accessToken;
         }
@@ -84,6 +96,7 @@ public class ClientUserInitService {
                         expiresIn = object.optLong("expires_in");
                         authorizationTime = System.currentTimeMillis();
                         CryptoTool.addPublicKey(object.optString("public_key"));
+                        LogUtil.i(TAG, "Client user authenticate successful!");
                         // Send client user report information.
                         sendUserReport();
                     }
@@ -130,9 +143,12 @@ public class ClientUserInitService {
             request.send(object.toString().getBytes());
 
             if (request.code() == 200) {
+                LogUtil.i(TAG, "Send user report information successful!");
+
                 String body = request.body();
                 if (!StringUtils.isEmpty(body)) {
                     ServerConfig config = new ServerConfig(new JSONObject(body));
+                    LogUtil.i(TAG, "Read server config successful!");
                     impServerConfig(config);
                 }
             }
@@ -167,6 +183,7 @@ public class ClientUserInitService {
     }
 
     private void impServerConfig(ServerConfig config) {
+        this.config = config;
         if (!config.isGranted()) {
             return;
         }

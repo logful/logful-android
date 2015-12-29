@@ -8,6 +8,7 @@ import com.getui.logful.entity.AttachmentFileMeta;
 import com.getui.logful.entity.CrashReportFileMeta;
 import com.getui.logful.entity.LogFileMeta;
 import com.getui.logful.util.ConnectivityState;
+import com.getui.logful.util.LogUtil;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -16,6 +17,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class TransferManager {
+
+    private static final String TAG = "TransferManager";
 
     private static ThreadPoolExecutor executor;
     private final ConcurrentLinkedQueue<UploadEvent> queue;
@@ -52,7 +55,7 @@ public class TransferManager {
      * 上传指定 level 的日志文件.
      */
     public static void uploadLogFile() {
-        if (!ConnectivityState.shouldUpload()) {
+        if (!shouldUpload()) {
             return;
         }
 
@@ -75,7 +78,7 @@ public class TransferManager {
      * @param endTime   结束时间
      */
     public static void uploadLogFile(long startTime, long endTime) {
-        if (!ConnectivityState.shouldUpload()) {
+        if (!shouldUpload()) {
             return;
         }
 
@@ -96,7 +99,7 @@ public class TransferManager {
      * 上传崩溃日志文件.
      */
     public static void uploadCrashReport() {
-        if (!ConnectivityState.shouldUpload()) {
+        if (!shouldUpload()) {
             return;
         }
 
@@ -112,7 +115,7 @@ public class TransferManager {
      * 上传附件文件.
      */
     public static void uploadAttachment() {
-        if (!ConnectivityState.shouldUpload()) {
+        if (!shouldUpload()) {
             return;
         }
 
@@ -122,6 +125,18 @@ public class TransferManager {
             UploadAttachmentFileEvent event = new UploadAttachmentFileEvent(meta);
             manager.addEvent(event);
         }
+    }
+
+    private static boolean shouldUpload() {
+        if (!ClientUserInitService.granted()) {
+            LogUtil.w(TAG, "Client user not allow to upload file!");
+            return false;
+        }
+        if (!ConnectivityState.shouldUpload()) {
+            LogUtil.w(TAG, "Not allow to upload use current network type!");
+            return false;
+        }
+        return true;
     }
 
     private void uploadLogFileFromMetaList(List<LogFileMeta> metaList) {
