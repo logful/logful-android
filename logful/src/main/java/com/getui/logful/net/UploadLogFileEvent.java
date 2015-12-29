@@ -55,6 +55,7 @@ public class UploadLogFileEvent extends UploadEvent {
         if (meta == null) {
             return;
         }
+
         if (!ConnectivityState.shouldUpload()) {
             return;
         }
@@ -124,6 +125,8 @@ public class UploadLogFileEvent extends UploadEvent {
             String url = SystemConfig.apiUrl(LoggerConstants.UPLOAD_LOG_FILE_URI);
             HttpRequest request = null;
             try {
+                LogUtil.i(TAG, "Will upload log file " + meta.getFilename() + "!");
+
                 request = HttpRequest.post(url);
                 request.header("Authorization", authorization);
 
@@ -134,6 +137,8 @@ public class UploadLogFileEvent extends UploadEvent {
                 request.part("payload", payload);
                 request.part("logFile", meta.getFilename(), new File(cacheFilePath));
                 if (request.code() == 202) {
+                    LogUtil.i(TAG, "Upload log file " + meta.getFilename() + " successful!");
+
                     success(inFilePath);
                     FileUtils.deleteQuietly(cacheFilePath);
                 }

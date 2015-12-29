@@ -11,7 +11,6 @@ import com.getui.logful.util.ConnectivityState;
 import com.getui.logful.util.HttpRequest;
 import com.getui.logful.util.LogStorage;
 import com.getui.logful.util.LogUtil;
-import com.getui.logful.util.StringUtils;
 import com.getui.logful.util.SystemConfig;
 import com.getui.logful.util.SystemInfo;
 import com.getui.logful.util.UidTool;
