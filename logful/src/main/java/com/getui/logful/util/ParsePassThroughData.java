@@ -1,16 +1,15 @@
 package com.getui.logful.util;
 
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.os.Handler;
 import android.util.Log;
 
-import com.getui.logful.Logger;
 import com.getui.logful.LoggerFactory;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by lqynydyxf on 15/12/22.
@@ -19,105 +18,78 @@ public class ParsePassThroughData {
 
     private final static String TAG = ParsePassThroughData.class.getSimpleName();
 
+    //接受到透传消息时的时间戳
+    private static long originTime = System.currentTimeMillis();
+
     /**
-     * 解析Json格式的字符串
+     * 解析Json格式的字符串，消息格式暂定为
+     * {
+     * "on": true, //日志是否打开
+     * "interval": 10000000, //日志开启时间（到达时间后自动关闭）
+     * "frequency": 1000 //日志上传频率（每隔多长时间自动上传日志）
+     * }
      *
-     * @param context
      * @param data
      */
-    public static void parseData(Context context, String data) {
-        final String MATCHER = "matcher";
-        final String APP_ID = "appId";
-        final String APP_KEY = "appKey";
-        final String ACTION_CHAINS = "actionChains";
-        final String OPEN_LOG = "openLog";
-        final String UPLOAD_LOG = "upLoadLog";
-        final String IS_UPLOAD = "isUpLoad";
-        final String UPLOAD_LEVEL = "upLoadLevel";
+    public static void parseData(String data) {
+
+        final String ON = "on";
+        final String INTERVAL = "interval";
+        final String FREQUENCY = "frequency";
         try {
             JSONObject dataJson = new JSONObject(data);
-            JSONObject matcherObject = dataJson.getJSONObject(MATCHER);
-            String appId = matcherObject.getString(APP_ID);
-            String appKey = matcherObject.getString(APP_KEY);
-            JSONObject actionObject = dataJson.getJSONObject(ACTION_CHAINS);
-            boolean openLog = actionObject.getBoolean(OPEN_LOG);
-            JSONObject upLoadLogObject = actionObject.getJSONObject(UPLOAD_LOG);
-            boolean isUpLoad = upLoadLogObject.getBoolean(IS_UPLOAD);
-            String upLoadLevel = upLoadLogObject.getString(UPLOAD_LEVEL);
-            if (verifyAppIDAndAppKey(context, appId, appKey)) {
-                Log.d(TAG, "verify success!");
-                pushLogToServer(upLoadLevel);
+            boolean openLog = dataJson.getBoolean(ON);
+            final long interval = dataJson.getLong(INTERVAL);
+            final long frequency = dataJson.getLong(FREQUENCY);
+
+            Log.d(TAG, "on = " + String.valueOf(openLog) +
+                    " interval = " + String.valueOf(interval) +
+                    " frequency = " + String.valueOf(frequency));
+
+            if (openLog) {
+                LoggerFactory.turnOnLog();
+                Log.d(TAG, String.valueOf(LoggerFactory.isOn()));
+                LoggerFactory.interruptThenSync();
+                loopExcute(interval, frequency);
+            } else {
+                LoggerFactory.turnOffLog();
             }
-            Log.d(TAG, "appId = " + appId +
-                    " appKey = " + appKey +
-                    " oepnLog = " + Boolean.toString(openLog) +
-                    " isUpLoad = " + Boolean.toString(isUpLoad) +
-                    " upLoadLevel = " + upLoadLevel);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * 通过透传消息里的AppID，AppKey和本地配置的报名和AppKey的对比，进行验证
+     * 根据设定的时间间隔，循环执行
      *
-     * @param context
-     * @param AppID
-     * @param AppKey
-     * @return
+     * @param interval
+     * @param frequency
      */
-    public static boolean verifyAppIDAndAppKey(Context context, String AppID, String AppKey) {
-        String packageName = context.getPackageName();
-        try {
-            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
-            String pushAppKey = appInfo.metaData.getString("PUSH_APPKEY");
-            if (pushAppKey != null && packageName.equals(AppID) && AppKey.equals(pushAppKey)) {
-                Log.d(TAG, packageName + "   " + pushAppKey);
-                return true;
+    private static void loopExcute(final long interval, long frequency) {
+        Log.d("intervalTimeMillis", String.valueOf(interval * 1000));
+        long periodTimeMillis = frequency * 1000;
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                doWork(interval);
             }
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        return false;
+        };
+        scheduledExecutorService.scheduleAtFixedRate(task, 1000, periodTimeMillis, TimeUnit.MILLISECONDS);
     }
 
     /**
-     * 根据Json对象里日志的级别打印
+     * 需要循环执行的操作
      *
-     * @param level
+     * @param interval
      */
-    private static void pushLogToServer(String level) {
-        Log.d(TAG, "pushLogToServer is doing");
-        Logger logger = LoggerFactory.logger("app");
-        if (level.equals("verbose")) {
-            logger.verbose(TAG, "some verbose message");
-
-        } else if (level.equals("debug")) {
-            logger.debug(TAG, "some debug message");
-
-        } else if (level.equals("info")) {
-            logger.info(TAG, "some info message");
-
-        } else if (level.equals("warn")) {
-            logger.warn(TAG, "some warn message");
-
-        } else if (level.equals("error")) {
-            logger.error(TAG, "some error message");
-
-        } else if (level.equals("exception")) {
-            logger.exception(TAG, "some exception message", null);
-
-        } else if (level.equals("fatal")) {
-            logger.fatal(TAG, "some fatal message");
-
+    private static void doWork(long interval) {
+        long intervalTimeMillis = interval * 1000;
+        if (System.currentTimeMillis() + 1000 - originTime < intervalTimeMillis) {
+            LoggerFactory.interruptThenSync();
+            Log.d("timePassBy", String.valueOf(System.currentTimeMillis() - originTime));
+        } else {
+            LoggerFactory.turnOffLog();
         }
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "upLoadLog------");
-                LoggerFactory.interruptThenSync();
-            }
-        }, 1000);
     }
 }

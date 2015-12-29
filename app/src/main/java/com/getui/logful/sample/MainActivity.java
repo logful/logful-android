@@ -23,6 +23,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        LoggerFactory.turnOnLog();
+
         setContentView(R.layout.activity_main);
 
         findViewById(R.id.verbose_log_button).setOnClickListener(this);

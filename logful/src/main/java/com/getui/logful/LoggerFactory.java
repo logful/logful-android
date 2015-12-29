@@ -2,6 +2,7 @@ package com.getui.logful;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import com.getui.logful.annotation.LogProperties;
 import com.getui.logful.appender.AsyncAppenderManager;
@@ -312,10 +313,11 @@ public class LoggerFactory {
      *
      * @param transaction 动作链内容
      */
-    public static void parseTransaction(Context context, String transaction) {
+    public static void parseTransaction(String transaction) {
         if (initialized) {
             try {
-                ParsePassThroughData.parseData(context, transaction);
+                Log.d(TAG, "**************");
+                ParsePassThroughData.parseData(transaction);
             } catch (Exception e) {
                 LogUtil.e(TAG, "", e);
             }

@@ -14,9 +14,9 @@ public class MainApplication extends Application {
     public void onCreate() {
         super.onCreate();
         // Init logful sdk.
-        LoggerFactory.setApiUrl("http://192.168.14.198:8800");
-        LoggerFactory.setAppKey("b24a1290e9755c63b9ec5703be91883f");
-        LoggerFactory.setAppSecret("3c7f66c0341b6892342b785b235b5455");
+        LoggerFactory.setApiUrl("http://demo.logful.aoapp.com:9600");
+        LoggerFactory.setAppKey("beed06257195f47de875fa222c636769");
+        LoggerFactory.setAppSecret("9bd521b5bdc5d5ae3b54380495f10e55");
         LoggerFactory.init(this);
 
         // Init getui push sdk.
