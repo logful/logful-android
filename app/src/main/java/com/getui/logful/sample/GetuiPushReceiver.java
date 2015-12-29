@@ -26,6 +26,10 @@ public class GetuiPushReceiver extends BroadcastReceiver {
                     LoggerFactory.parseTransaction(data);
                 }
                 break;
+            case PushConsts.GET_CLIENTID:
+                String cid = bundle.getString("clientid");
+                LoggerFactory.bindPushSdk(cid);
+                break;
             default:
                 break;
         }

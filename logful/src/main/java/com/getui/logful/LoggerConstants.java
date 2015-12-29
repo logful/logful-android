@@ -81,6 +81,8 @@ public class LoggerConstants {
 
     public static final String UPLOAD_USER_INFO_URI = "/log/info/upload";
 
+    public static final String BIND_DEVICE_ID_URI = "/log/bind";
+
     public static final String UPLOAD_LOG_FILE_URI = "/log/file/upload";
 
     public static final String UPLOAD_CRASH_REPORT_FILE_URI = "/log/crash/upload";

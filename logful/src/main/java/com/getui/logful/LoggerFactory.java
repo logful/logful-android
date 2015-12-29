@@ -323,6 +323,14 @@ public class LoggerFactory {
         }
     }
 
+    public static void bindPushSdk(String deviceId) {
+        if (StringUtils.isEmpty(deviceId)) {
+            LogUtil.w(TAG, "Device id is empty!");
+            return;
+        }
+        ClientUserInitService.bind(deviceId);
+    }
+
     /**
      * 使用默认的 logger 打印 verbose 信息.
      *

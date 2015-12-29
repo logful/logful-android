@@ -58,6 +58,11 @@ public class ClientUserInitService {
         service._authenticate();
     }
 
+    public static void bind(final String deviceId) {
+        ClientUserInitService service = service();
+        service._bind(deviceId);
+    }
+
     private boolean _authenticated() {
         return !StringUtils.isEmpty(tokenType) && !StringUtils.isEmpty(accessToken);
     }
@@ -96,6 +101,7 @@ public class ClientUserInitService {
                         expiresIn = object.optLong("expires_in");
                         authorizationTime = System.currentTimeMillis();
                         CryptoTool.addPublicKey(object.optString("public_key"));
+
                         LogUtil.i(TAG, "Client user authenticate successful!");
                         // Send client user report information.
                         sendUserReport();
@@ -109,6 +115,58 @@ public class ClientUserInitService {
                 }
             }
         }).start();
+    }
+
+    private void _bind(final String deviceId) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (_authenticated()) {
+                    bindDeviceId(deviceId);
+                } else {
+                    try {
+                        Thread.sleep(30 * 1000);
+                        if (_authenticated()) {
+                            bindDeviceId(deviceId);
+                        } else {
+                            LogUtil.w(TAG, "Bind push sdk cid failed!");
+                        }
+                    } catch (InterruptedException e) {
+                        LogUtil.e(TAG, "", e);
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private void bindDeviceId(final String deviceId) {
+        String url = SystemConfig.apiUrl(LoggerConstants.BIND_DEVICE_ID_URI);
+        HttpRequest request = null;
+        try {
+            JSONObject object = new JSONObject();
+            object.put("sdkVersion", LoggerFactory.version());
+            object.put("platform", LoggerConstants.PLATFORM_ANDROID);
+            object.put("uid", UidTool.uid());
+            object.put("appId", SystemInfo.appId());
+            object.put("deviceId", deviceId);
+
+            request = HttpRequest.post(url);
+            request.header("Content-Type", "application/json");
+            request.header("Accept", "application/json");
+            request.header("Authorization", authorization());
+
+            request.send(object.toString().getBytes());
+
+            if (request.code() == 200) {
+                LogUtil.i(TAG, "Bind push sdk cid successful!");
+            }
+        } catch (Exception e) {
+            LogUtil.e(TAG, "", e);
+        } finally {
+            if (request != null) {
+                request.disconnect();
+            }
+        }
     }
 
     private void sendUserReport() {
@@ -147,6 +205,7 @@ public class ClientUserInitService {
 
                 String body = request.body();
                 if (!StringUtils.isEmpty(body)) {
+                    LogUtil.i(TAG, body);
                     ServerConfig config = new ServerConfig(new JSONObject(body));
                     LogUtil.i(TAG, "Read server config successful!");
                     impServerConfig(config);

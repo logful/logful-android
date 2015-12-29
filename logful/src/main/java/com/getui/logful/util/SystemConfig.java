@@ -62,15 +62,14 @@ public class SystemConfig {
 
     public static String baseUrl() {
         SystemConfig config = SystemConfig.config();
-        if (config.baseUrl == null || config.baseUrl.length() == 0) {
+        if (StringUtils.isEmpty(config.baseUrl)) {
             return LoggerConstants.API_BASE_URL;
         }
         return config.baseUrl;
     }
 
     public static String apiUrl(String uri) {
-        SystemConfig config = SystemConfig.config();
-        return config.baseUrl + uri;
+        return SystemConfig.baseUrl() + uri;
     }
 
     public static String appKey() {
