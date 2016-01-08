@@ -28,6 +28,7 @@ public class GetuiPushReceiver extends BroadcastReceiver {
                 break;
             case PushConsts.GET_CLIENTID:
                 String cid = bundle.getString("clientid");
+                Log.v(TAG, cid);
                 LoggerFactory.bindPushSdk(cid);
                 break;
             default:

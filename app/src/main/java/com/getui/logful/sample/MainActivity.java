@@ -95,11 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void crash() {
-        try {
-            throw new IllegalArgumentException("Test caught crash");
-        } catch (Exception e) {
-            LoggerFactory.exception(TAG, "", e);
-        }
+        throw new IllegalArgumentException("Test caught crash");
     }
 
     private void log(int viewId, String loggerName) {

@@ -95,7 +95,10 @@ public class ClientUserInitService {
                     request.part("grant_type", "client_credentials");
                     request.part("scope", "client");
                     if (request.ok()) {
-                        JSONObject object = new JSONObject(request.body());
+                        String body = request.body();
+                        LogUtil.i(TAG, body);
+
+                        JSONObject object = new JSONObject(body);
                         accessToken = object.optString("access_token");
                         tokenType = object.optString("token_type");
                         expiresIn = object.optLong("expires_in");
@@ -202,7 +205,6 @@ public class ClientUserInitService {
 
             if (request.code() == 200) {
                 LogUtil.i(TAG, "Send user report information successful!");
-
                 String body = request.body();
                 if (!StringUtils.isEmpty(body)) {
                     LogUtil.i(TAG, body);

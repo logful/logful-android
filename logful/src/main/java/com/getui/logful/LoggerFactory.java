@@ -304,6 +304,7 @@ public class LoggerFactory {
             AsyncAppenderManager.interrupt();
             TransferManager.uploadLogFile();
             TransferManager.uploadAttachment();
+            TransferManager.uploadCrashReport();
         }
     }
 

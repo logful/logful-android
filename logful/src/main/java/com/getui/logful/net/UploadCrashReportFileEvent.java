@@ -1,6 +1,7 @@
 package com.getui.logful.net;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.getui.logful.LoggerConstants;
 import com.getui.logful.LoggerFactory;
@@ -13,6 +14,8 @@ import com.getui.logful.util.LogUtil;
 import com.getui.logful.util.SystemConfig;
 import com.getui.logful.util.SystemInfo;
 import com.getui.logful.util.UidTool;
+
+import org.json.JSONObject;
 
 import java.io.File;
 
@@ -67,15 +70,28 @@ public class UploadCrashReportFileEvent extends UploadEvent {
             request.connectTimeout(LoggerConstants.DEFAULT_HTTP_REQUEST_TIMEOUT);
             request.readTimeout(LoggerConstants.DEFAULT_HTTP_REQUEST_TIMEOUT);
 
-            request.part("platform", "android");
-            request.part("sdkVersion", LoggerFactory.version());
-            request.part("uid", UidTool.uid());
-            request.part("appId", SystemInfo.appId());
-            request.part("fileSum", fileSumString);
-            request.part("reportFile", meta.getFilename(), new File(fullPath));
+            JSONObject object = new JSONObject();
+            object.put("sdkVersion", LoggerFactory.version());
+            object.put("fileSum", fileSumString);
 
+            JSONObject fileMetaObj = new JSONObject();
+            fileMetaObj.put("platform", LoggerConstants.PLATFORM_ANDROID);
+            fileMetaObj.put("uid", UidTool.uid());
+            fileMetaObj.put("alias", SystemConfig.alias());
+            fileMetaObj.put("model", Build.MODEL);
+            fileMetaObj.put("imei", SystemInfo.imei());
+            fileMetaObj.put("macAddress", SystemInfo.macAddress());
+            fileMetaObj.put("osVersion", Build.VERSION.RELEASE);
+            fileMetaObj.put("appId", SystemInfo.appId());
+            fileMetaObj.put("version", SystemInfo.version());
+            fileMetaObj.put("versionString", SystemInfo.versionString());
+            fileMetaObj.put("date", meta.getCreateTime());
+
+            object.put("meta", fileMetaObj);
+
+            request.part("payload", object.toString());
+            request.part("reportFile", meta.getFilename(), new File(fullPath));
             if (request.ok()) {
-                meta.setFileMD5(fileSumString);
                 meta.setStatus(LoggerConstants.STATE_UPLOADED);
                 DatabaseManager.saveCrashFileMeta(meta);
             }
