@@ -68,6 +68,8 @@ public class TransferManager {
         List<LogFileMeta> metaList =
                 DatabaseManager.findAllLogFileMetaByLevel(levels, LoggerConstants.STATE_WILL_UPLOAD);
 
+        LogUtil.d(TAG, metaList.size() + " log files wait for upload.");
+
         manager.uploadLogFileFromMetaList(metaList);
     }
 
@@ -105,6 +107,7 @@ public class TransferManager {
 
         TransferManager manager = manager();
         List<CrashReportFileMeta> metaList = DatabaseManager.findAllCrashFileMeta(LoggerConstants.STATE_NORMAL);
+        LogUtil.d(TAG, metaList.size() + " crash files wait for upload.");
         for (CrashReportFileMeta meta : metaList) {
             UploadCrashReportFileEvent event = new UploadCrashReportFileEvent(meta);
             manager.addEvent(event);
@@ -121,6 +124,7 @@ public class TransferManager {
 
         TransferManager manager = manager();
         List<AttachmentFileMeta> metaList = DatabaseManager.findAllAttachmentFileMeta(LoggerConstants.STATE_NORMAL);
+        LogUtil.d(TAG, metaList.size() + " attachment files wait for upload.");
         for (AttachmentFileMeta meta : metaList) {
             UploadAttachmentFileEvent event = new UploadAttachmentFileEvent(meta);
             manager.addEvent(event);
@@ -133,7 +137,7 @@ public class TransferManager {
             return false;
         }
         if (!ConnectivityState.shouldUpload()) {
-            LogUtil.w(TAG, "Not allow to upload use current network type!");
+            LogUtil.w(TAG, "Not allow to upload file use current network type!");
             return false;
         }
         return true;

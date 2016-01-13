@@ -48,6 +48,7 @@ public class FileReportSender implements ReportSender {
             CrashReportFileMeta meta = new CrashReportFileMeta();
             meta.setLocation(location);
             meta.setFilename(filename);
+            meta.setCause(crashData.getExceptionCause());
             DatabaseManager.saveCrashFileMeta(meta);
 
             // 上传崩溃日志文件

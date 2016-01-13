@@ -40,7 +40,8 @@ public class ClientUserInitService {
 
     public static boolean granted() {
         ClientUserInitService service = service();
-        return service.config != null && service._authenticated() && service.config.isGranted();
+        // TODO
+        return service._authenticated();
     }
 
     public static boolean authenticated() {
@@ -245,9 +246,10 @@ public class ClientUserInitService {
 
     private void impServerConfig(ServerConfig config) {
         this.config = config;
-        if (!config.isGranted()) {
-            return;
+        if (config.isGranted()) {
+            // TODO
+        } else {
+            LogUtil.d(TAG, "Client user not granted!");
         }
-        // TODO
     }
 }

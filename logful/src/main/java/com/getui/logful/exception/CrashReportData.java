@@ -6,66 +6,66 @@ public class CrashReportData {
      * 唯一 id.
      */
     private String uid;
-
+    /**
+     * Exception cause type.
+     */
+    private String exceptionCause;
     /**
      * Stack Trace.
      */
     private String stackTrace;
-
     /**
      * Stack Trace hash.
      */
     private String stackTraceHash;
-
     /**
      * app 启动时间.
      */
     private String appStartDate;
-
     /**
      * app 崩溃时间.
      */
     private String crashDate;
-
     /**
      * app 启动时间戳.
      */
     private String appStartTimeMillis;
-
     /**
      * app 崩溃时间戳.
      */
     private String crashTimeMillis;
-
     /**
      * 总内存.
      */
     private String totalMemorySize;
-
     /**
      * 可用内存.
      */
     private String availableMemorySize;
-
     /**
      * Logcat default extract. Requires READ_LOGS permission.
      */
     private String logcat;
-
     /**
      * Logcat eventsLog extract. Requires READ_LOGS permission.
      */
     private String eventsLog;
-
     /**
      * Logcat radio extract. Requires READ_LOGS permission.
      */
     private String radioLog;
-
     /**
      * Retrieves details of the failing thread (id, name, group name).
      */
     private String threadDetail;
+
+    public String getExceptionCause() {
+        return exceptionCause;
+    }
+
+    public void setExceptionCause(String exceptionCause) {
+        this.exceptionCause = exceptionCause;
+    }
 
     public String getUid() {
         return uid;

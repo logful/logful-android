@@ -92,6 +92,18 @@ public class LogStorage {
         return fileFullPath(LoggerConstants.ATTACHMENT_DIR_NAME, writable, meta.getLocation(), meta.getFilename());
     }
 
+    public static File configFile() {
+        Context context = LoggerFactory.context();
+        if (context == null) {
+            return null;
+        }
+        if (LogStorage.readable()) {
+            return new File(context.getExternalFilesDir(null), LoggerConstants.CONFIG_FILE_NAME);
+        } else {
+            return new File(context.getFilesDir(), LoggerConstants.CONFIG_FILE_NAME);
+        }
+    }
+
     private static String fileFullPath(String dirName, boolean writable, int location, String filename) {
         String dirPath = null;
         switch (location) {

@@ -16,6 +16,8 @@ public class CrashReportFileMeta {
 
     private int status;
 
+    private String cause;
+
     private String fileMD5;
 
     public CrashReportFileMeta() {
@@ -23,6 +25,14 @@ public class CrashReportFileMeta {
         this.status = LoggerConstants.STATE_NORMAL;
         this.createTime = System.currentTimeMillis();
         this.location = LoggerConstants.LOCATION_EXTERNAL;
+    }
+
+    public String getCause() {
+        return cause;
+    }
+
+    public void setCause(String cause) {
+        this.cause = cause;
     }
 
     public long getId() {

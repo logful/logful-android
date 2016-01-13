@@ -86,6 +86,7 @@ public class UploadCrashReportFileEvent extends UploadEvent {
             fileMetaObj.put("version", SystemInfo.version());
             fileMetaObj.put("versionString", SystemInfo.versionString());
             fileMetaObj.put("date", meta.getCreateTime());
+            fileMetaObj.put("cause", meta.getCause());
 
             object.put("meta", fileMetaObj);
 

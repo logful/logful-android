@@ -2,6 +2,10 @@ package com.getui.logful.util;
 
 import android.util.Base64;
 
+import com.getui.logful.LoggerConfigurator;
+import com.getui.logful.LoggerFactory;
+import com.getui.logful.security.SecurityProvider;
+
 public class CryptoTool {
 
     private static final String TAG = "CryptoTool";
@@ -17,13 +21,15 @@ public class CryptoTool {
     }
 
     public static String securityString() {
+        LoggerConfigurator configurator = LoggerFactory.config();
+        if (configurator == null) {
+            return null;
+        }
+        SecurityProvider provider = configurator.getSecurityProvider();
+        if (provider == null) {
+            return null;
+        }
         if (StringUtils.isEmpty(pemPublicKeyString)) {
-            return null;
-        }
-        if (StringUtils.isEmpty(SystemConfig.appKey())) {
-            return null;
-        }
-        if (StringUtils.isEmpty(UidTool.uid())) {
             return null;
         }
         if (!StringUtils.isEmpty(securityKeyString)) {
@@ -31,15 +37,15 @@ public class CryptoTool {
         }
         try {
             byte[] keyBytes = pemPublicKeyString.getBytes();
-            byte[] pwdBytes = SystemConfig.appKey().getBytes();
-            byte[] saltBytes = UidTool.uid().getBytes();
+            byte[] pwdBytes = provider.password();
+            byte[] saltBytes = provider.salt();
             byte[] result = security(keyBytes, keyBytes.length, pwdBytes, pwdBytes.length, saltBytes, saltBytes.length);
             if (result != null) {
                 securityKeyString = Base64.encodeToString(result, Base64.NO_WRAP);
                 return securityKeyString;
             }
-        } catch (Exception e) {
-            LogUtil.e(TAG, "", e);
+        } catch (Throwable e) {
+            LogUtil.wtf(TAG, "", e);
         }
         return null;
     }
@@ -51,22 +57,24 @@ public class CryptoTool {
      * @return Encrypted cipher bytes with PKCS#7 padding
      */
     public static synchronized byte[] AESEncrypt(String string) {
-        if (StringUtils.isEmpty(SystemConfig.appKey())) {
+        LoggerConfigurator configurator = LoggerFactory.config();
+        if (configurator == null) {
             return errorBytes;
         }
-        if (StringUtils.isEmpty(UidTool.uid())) {
+        SecurityProvider provider = configurator.getSecurityProvider();
+        if (provider == null) {
             return errorBytes;
         }
         try {
-            byte[] pwdBytes = SystemConfig.appKey().getBytes();
-            byte[] saltBytes = UidTool.uid().getBytes();
+            byte[] pwdBytes = provider.password();
+            byte[] saltBytes = provider.salt();
             byte[] data = addPadding(string.getBytes());
             byte[] result = CryptoTool.encrypt(pwdBytes, pwdBytes.length, saltBytes, saltBytes.length, data, data.length);
             if (result != null) {
                 return result;
             }
         } catch (Throwable throwable) {
-            LogUtil.e(TAG, "", throwable);
+            LogUtil.wtf(TAG, "", throwable);
         }
         return errorBytes;
     }

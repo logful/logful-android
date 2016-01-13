@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 import com.getui.logful.LoggerFactory;
+import com.getui.logful.appender.AsyncAppenderManager;
+import com.getui.logful.net.TransferManager;
 import com.getui.logful.util.LogUtil;
 
 import java.text.ParseException;
@@ -15,6 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -22,9 +25,13 @@ public class ScheduleExecutor {
 
     private static final String TAG = "ScheduleExecutor";
 
-    private static final long FIRST_EXEC_DELAY = 8;
+    private static final long FIRST_EXEC_DELAY = 5;
 
     private ScheduledExecutorService executor;
+
+    private Future<?> future;
+
+    private Future<?> stopFuture;
 
     private static class ClassHolder {
         static ScheduleExecutor scheduler = new ScheduleExecutor();
@@ -34,14 +41,60 @@ public class ScheduleExecutor {
         return ClassHolder.scheduler;
     }
 
-    public static void schedule(long scheduleTime) {
-        ScheduleExecutor scheduler = ScheduleExecutor.scheduler();
+    public static void schedule(long frequency, final boolean interrupt, long interval) {
+        final ScheduleExecutor scheduler = ScheduleExecutor.scheduler();
+        if (scheduler.future == null
+                || scheduler.future.isDone()
+                || scheduler.future.cancel(true)) {
+            LogUtil.d(TAG, "Schedule task every " + frequency + " seconds.");
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (interrupt) {
+                        LogUtil.d(TAG, "Will interrupt all writing log file.");
+                        AsyncAppenderManager.interrupt();
+                    }
+                    TransferManager.uploadLogFile();
+                    TransferManager.uploadAttachment();
+                    TransferManager.uploadCrashReport();
+                }
+            };
+            scheduler.future = scheduler.getExecutor()
+                    .scheduleAtFixedRate(runnable, FIRST_EXEC_DELAY, frequency, TimeUnit.SECONDS);
+        }
+        if (scheduler.stopFuture == null
+                || scheduler.stopFuture.isDone()
+                || scheduler.stopFuture.cancel(true)) {
+            if (interval != 0) {
+                LogUtil.d(TAG, "Stop schedule task after " + interval + " second.");
+                scheduler.stopFuture = scheduler.getExecutor().schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        LogUtil.d(TAG, "Will cancel all schedule task!");
+                        if (scheduler.future.cancel(true)) {
+                            LogUtil.d(TAG, "All schedule task canceled!");
+                        }
+                    }
+                }, interval, TimeUnit.SECONDS);
+            }
+        }
+    }
 
-        SchemeRunnable runnable = new SchemeRunnable();
-        runnable.addTask(new RefreshScheduleTask("Refresh"));
-        runnable.addTask(new ClearScheduledTask("Clear"));
-        runnable.addTask(new UploadScheduleTask("Upload"));
-        scheduler.getExecutor().scheduleAtFixedRate(runnable, FIRST_EXEC_DELAY, scheduleTime, TimeUnit.SECONDS);
+    public static void cancelAll() {
+        ScheduleExecutor scheduler = ScheduleExecutor.scheduler();
+        if (scheduler.stopFuture != null) {
+            scheduler.stopFuture.cancel(true);
+        }
+        if (scheduler.future != null) {
+            scheduler.future.cancel(true);
+        }
+    }
+
+    private ScheduledExecutorService getExecutor() {
+        if (executor == null) {
+            executor = Executors.newScheduledThreadPool(1);
+        }
+        return executor;
     }
 
     public static void schedule(String[] scheduleArray) {
@@ -80,7 +133,7 @@ public class ScheduleExecutor {
                     alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 24 * 60 * 60 * 1000,
                             pendingIntent);
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    LogUtil.e(TAG, "", e);
                 }
             } else if (timeString.length() == 11) {
                 Calendar today = Calendar.getInstance();
@@ -92,17 +145,9 @@ public class ScheduleExecutor {
                     pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                     alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    LogUtil.e(TAG, "", e);
                 }
             }
         }
     }
-
-    private ScheduledExecutorService getExecutor() {
-        if (executor == null) {
-            executor = Executors.newSingleThreadScheduledExecutor();
-        }
-        return executor;
-    }
-
 }

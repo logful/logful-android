@@ -5,9 +5,6 @@ import org.json.JSONObject;
 public class ServerConfig {
 
     private boolean granted;
-    private int scheduleType;
-    private long scheduleTime;
-    private String[] scheduleArray;
 
     public ServerConfig(JSONObject object) {
         // TODO
@@ -24,30 +21,6 @@ public class ServerConfig {
 
     public void setGranted(boolean granted) {
         this.granted = granted;
-    }
-
-    public int getScheduleType() {
-        return scheduleType;
-    }
-
-    public void setScheduleType(int scheduleType) {
-        this.scheduleType = scheduleType;
-    }
-
-    public long getScheduleTime() {
-        return scheduleTime;
-    }
-
-    public void setScheduleTime(long scheduleTime) {
-        this.scheduleTime = scheduleTime;
-    }
-
-    public String[] getScheduleArray() {
-        return scheduleArray;
-    }
-
-    public void setScheduleArray(String[] scheduleArray) {
-        this.scheduleArray = scheduleArray;
     }
 
 }

@@ -52,6 +52,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static final String CRASH_FIELD_ID = "id";
     private static final String CRASH_FIELD_FILENAME = "filename";
     private static final String CRASH_FIELD_LOCATION = "location";
+    private static final String CRASH_FIELD_CAUSE = "cause";
     private static final String CRASH_FIELD_CREATE_TIME = "create_time";
     private static final String CRASH_FIELD_DELETE_TIME = "delete_time";
     private static final String CRASH_FIELD_STATUS = "status";
@@ -109,8 +110,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         // Create crash report file meta table.
         String createCrashReportFileMetaTable =
                 "CREATE TABLE " + TABLE_CRASH_REPORT_FILE_META + "(" + CRASH_FIELD_ID + " INTEGER PRIMARY KEY,"
-                        + CRASH_FIELD_FILENAME + text + CRASH_FIELD_LOCATION + integer + CRASH_FIELD_CREATE_TIME
-                        + integer + CRASH_FIELD_DELETE_TIME + integer + CRASH_FIELD_STATUS + integer
+                        + CRASH_FIELD_FILENAME + text + CRASH_FIELD_LOCATION + integer + CRASH_FIELD_CAUSE + text
+                        + CRASH_FIELD_CREATE_TIME + integer + CRASH_FIELD_DELETE_TIME + integer + CRASH_FIELD_STATUS + integer
                         + CRASH_FIELD_FILE_MD5 + " TEXT" + ")";
 
         // Create msg layout table.
@@ -201,6 +202,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(CRASH_FIELD_FILENAME, meta.getFilename());
         values.put(CRASH_FIELD_LOCATION, meta.getLocation());
+        values.put(CRASH_FIELD_CAUSE, meta.getCause());
         values.put(CRASH_FIELD_CREATE_TIME, meta.getCreateTime());
         values.put(CRASH_FIELD_DELETE_TIME, meta.getDeleteTime());
         values.put(CRASH_FIELD_STATUS, meta.getStatus());
@@ -647,6 +649,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         meta.setId(cursor.getLong(cursor.getColumnIndex(CRASH_FIELD_ID)));
         meta.setFilename(cursor.getString(cursor.getColumnIndex(CRASH_FIELD_FILENAME)));
         meta.setLocation(cursor.getInt(cursor.getColumnIndex(CRASH_FIELD_LOCATION)));
+        meta.setCause(cursor.getString(cursor.getColumnIndex(CRASH_FIELD_CAUSE)));
         meta.setCreateTime(cursor.getLong(cursor.getColumnIndex(CRASH_FIELD_CREATE_TIME)));
         meta.setDeleteTime(cursor.getLong(cursor.getColumnIndex(CRASH_FIELD_DELETE_TIME)));
         meta.setStatus(cursor.getInt(cursor.getColumnIndex(CRASH_FIELD_STATUS)));

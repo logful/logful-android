@@ -81,7 +81,9 @@ public class AsyncAppenderManager {
         AsyncAppenderManager manager = manager();
         manager.submitWriteTask();
 
+        LogUtil.d(TAG, "Start read pre log event from cache.");
         Map<String, LogEvent> snapshot = manager.logEventCache.snapshot();
+        LogUtil.d(TAG, snapshot.size() + " cached log event.");
         for (String key : snapshot.keySet()) {
             LogEvent logEvent = snapshot.get(key);
             if (logEvent != null) {
@@ -350,6 +352,8 @@ public class AsyncAppenderManager {
                 while (true) {
                     if (!appender.writing()) {
                         appender.stop();
+                        LogUtil.d(TAG, "Close appender with logger name: " + appender.getLoggerName() +
+                                " fragment: " + appender.fragment());
                         break;
                     }
                 }

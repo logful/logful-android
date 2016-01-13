@@ -1,6 +1,10 @@
 package com.getui.logful;
 
 
+import com.getui.logful.security.DefaultSecurityProvider;
+import com.getui.logful.security.SecurityProvider;
+import com.getui.logful.util.LogUtil;
+
 public class LoggerConfigurator {
 
     /**
@@ -63,28 +67,14 @@ public class LoggerConfigurator {
      */
     private float screenshotScale;
 
-    public LoggerConfigurator() {
-        this.logFileMaxSize = LoggerConstants.DEFAULT_LOG_FILE_MAX_SIZE;
-        this.uploadNetworkType = LoggerConstants.DEFAULT_UPLOAD_NETWORK_TYPE;
-        this.uploadLogLevel = LoggerConstants.DEFAULT_UPLOAD_LOG_LEVEL;
-        this.updateSystemFrequency = LoggerConstants.DEFAULT_UPDATE_SYSTEM_FREQUENCY;
-        this.activeUploadTask = LoggerConstants.DEFAULT_ACTIVE_UPLOAD_TASK;
-        this.activeLogWriter = LoggerConstants.DEFAULT_ACTIVE_LOG_WRITER;
-        this.deleteUploadedLogFile = LoggerConstants.DEFAULT_DELETE_UPLOADED_LOG_FILE;
-        this.caughtException = LoggerConstants.DEFAULT_CAUGHT_EXCEPTION;
-        this.defaultLoggerName = LoggerConstants.DEFAULT_LOGGER_NAME;
-        this.defaultMsgLayout = LoggerConstants.DEFAULT_MSG_LAYOUT;
-        this.screenshotQuality = LoggerConstants.DEFAULT_SCREENSHOT_QUALITY;
-        this.screenshotScale = LoggerConstants.DEFAULT_SCREENSHOT_SCALE;
+    private SecurityProvider securityProvider;
+
+    public static Builder newBuilder() {
+        return new Builder();
     }
 
-    /**
-     * 获取默认的 config 配置.
-     *
-     * @return LoggerConfigurator 配置
-     */
-    public static LoggerConfigurator build() {
-        return new LoggerConfigurator();
+    public SecurityProvider getSecurityProvider() {
+        return securityProvider;
     }
 
     /**
@@ -97,34 +87,12 @@ public class LoggerConfigurator {
     }
 
     /**
-     * 设置单个文件最大容量限制.
-     *
-     * @param logFileMaxSize 设置的最大值
-     * @return LoggerConfigurator
-     */
-    public synchronized LoggerConfigurator setLogFileMaxSize(long logFileMaxSize) {
-        this.logFileMaxSize = logFileMaxSize;
-        return this;
-    }
-
-    /**
      * 获取当前设置的可以上传日志的网络类型.
      *
      * @return 网络类型
      */
     public synchronized int[] getUploadNetworkType() {
         return uploadNetworkType;
-    }
-
-    /**
-     * 设置可以上传日志的网络类型.
-     *
-     * @param uploadNetworkType 设置的网络类型
-     * @return LoggerConfigurator
-     */
-    public synchronized LoggerConfigurator setUploadNetworkType(int... uploadNetworkType) {
-        this.uploadNetworkType = uploadNetworkType;
-        return this;
     }
 
     /**
@@ -137,34 +105,12 @@ public class LoggerConfigurator {
     }
 
     /**
-     * 设置需要上传的日志级别.
-     *
-     * @param uploadLogLevel 日志级别
-     * @return LoggerConfigurator
-     */
-    public synchronized LoggerConfigurator setUploadLogLevel(int... uploadLogLevel) {
-        this.uploadLogLevel = uploadLogLevel;
-        return this;
-    }
-
-    /**
      * 获取当前设置是否上传已经上传的日志文件.
      *
      * @return 是否删除
      */
     public synchronized boolean isDeleteUploadedLogFile() {
         return deleteUploadedLogFile;
-    }
-
-    /**
-     * 设置是否上传已经上传的日志文件.
-     *
-     * @param deleteUploadedLogFile 是否删除
-     * @return LoggerConfigurator
-     */
-    public synchronized LoggerConfigurator setDeleteUploadedLogFile(boolean deleteUploadedLogFile) {
-        this.deleteUploadedLogFile = deleteUploadedLogFile;
-        return this;
     }
 
     /**
@@ -177,34 +123,12 @@ public class LoggerConfigurator {
     }
 
     /**
-     * 设置定时任务周期.
-     *
-     * @param updateSystemFrequency 周期时间
-     * @return LoggerConfigurator
-     */
-    public synchronized LoggerConfigurator setUpdateSystemFrequency(long updateSystemFrequency) {
-        this.updateSystemFrequency = updateSystemFrequency;
-        return this;
-    }
-
-    /**
      * 获取设置同时写入的日志文件数量.
      *
      * @return 设置的值
      */
     public synchronized int getActiveLogWriter() {
         return activeLogWriter;
-    }
-
-    /**
-     * 设置同时写入的文件数量.
-     *
-     * @param activeLogWriter 文件数量
-     * @return LoggerConfigurator
-     */
-    public synchronized LoggerConfigurator setActiveLogWriter(int activeLogWriter) {
-        this.activeLogWriter = activeLogWriter;
-        return this;
     }
 
     /**
@@ -217,34 +141,12 @@ public class LoggerConfigurator {
     }
 
     /**
-     * 设置同时上传的日志文件个数.
-     *
-     * @param activeUploadTask 文件数量
-     * @return LoggerConfigurator
-     */
-    public synchronized LoggerConfigurator setActiveUploadTask(int activeUploadTask) {
-        this.activeUploadTask = activeUploadTask;
-        return this;
-    }
-
-    /**
      * 获取当前是否自动捕捉异常.
      *
      * @return 是否自动捕捉异常
      */
     public synchronized boolean isCaughtException() {
         return caughtException;
-    }
-
-    /**
-     * 设置时候自动捕捉异常.
-     *
-     * @param caughtException 设置的值
-     * @return LoggerConfigurator
-     */
-    public synchronized LoggerConfigurator setCaughtException(boolean caughtException) {
-        this.caughtException = caughtException;
-        return this;
     }
 
     /**
@@ -257,15 +159,6 @@ public class LoggerConfigurator {
     }
 
     /**
-     * 设置默认的 logger 名称.
-     *
-     * @param defaultLoggerName Logger 名称
-     */
-    public void setDefaultLoggerName(String defaultLoggerName) {
-        this.defaultLoggerName = defaultLoggerName;
-    }
-
-    /**
      * 获取默认的消息模板.
      *
      * @return 消息模板内容
@@ -275,33 +168,12 @@ public class LoggerConfigurator {
     }
 
     /**
-     * 设置默认的消息模板.
-     *
-     * @param defaultMsgLayout 消息模板内容
-     */
-    public void setDefaultMsgLayout(String defaultMsgLayout) {
-        this.defaultMsgLayout = defaultMsgLayout;
-    }
-
-    /**
      * 获取设置的截图压缩质量数值.
      *
      * @return 压缩数值
      */
     public int getScreenshotQuality() {
-        if (screenshotQuality >= 1 && screenshotQuality <= 100) {
-            return screenshotQuality;
-        }
-        return LoggerConstants.DEFAULT_SCREENSHOT_QUALITY;
-    }
-
-    /**
-     * 设置截图压缩质量.
-     *
-     * @param screenshotQuality 压缩数值
-     */
-    public void setScreenshotQuality(int screenshotQuality) {
-        this.screenshotQuality = screenshotQuality;
+        return screenshotQuality;
     }
 
     /**
@@ -310,18 +182,183 @@ public class LoggerConfigurator {
      * @return 缩放比例
      */
     public float getScreenshotScale() {
-        if (screenshotScale >= 0.1 && screenshotScale <= 1) {
-            return screenshotScale;
-        }
-        return LoggerConstants.DEFAULT_SCREENSHOT_SCALE;
+        return screenshotScale;
     }
 
-    /**
-     * 设置截图缩放比例.
-     *
-     * @param screenshotScale 缩放比例
-     */
-    public void setScreenshotScale(float screenshotScale) {
-        this.screenshotScale = screenshotScale;
+    public static class Builder {
+        private static final String TAG = "Builder";
+
+        private long logFileMaxSize = LoggerConstants.DEFAULT_LOG_FILE_MAX_SIZE;
+        private int[] uploadNetworkType = LoggerConstants.DEFAULT_UPLOAD_NETWORK_TYPE;
+        private int[] uploadLogLevel = LoggerConstants.DEFAULT_UPLOAD_LOG_LEVEL;
+        private boolean deleteUploadedLogFile = LoggerConstants.DEFAULT_DELETE_UPLOADED_LOG_FILE;
+        private long updateSystemFrequency = LoggerConstants.DEFAULT_UPDATE_SYSTEM_FREQUENCY;
+        private int activeUploadTask = LoggerConstants.DEFAULT_ACTIVE_UPLOAD_TASK;
+        private int activeLogWriter = LoggerConstants.DEFAULT_ACTIVE_LOG_WRITER;
+        private boolean caughtException = LoggerConstants.DEFAULT_CAUGHT_EXCEPTION;
+        private String defaultLoggerName = LoggerConstants.DEFAULT_LOGGER_NAME;
+        private String defaultMsgLayout = LoggerConstants.DEFAULT_MSG_LAYOUT;
+        private int screenshotQuality = LoggerConstants.DEFAULT_SCREENSHOT_QUALITY;
+        private float screenshotScale = LoggerConstants.DEFAULT_SCREENSHOT_SCALE;
+        private SecurityProvider securityProvider = new DefaultSecurityProvider();
+
+        /**
+         * 设置单个文件最大容量限制.
+         *
+         * @param logFileMaxSize 设置的最大值
+         * @return LoggerConfigurator
+         */
+        public Builder setLogFileMaxSize(long logFileMaxSize) {
+            this.logFileMaxSize = logFileMaxSize;
+            return this;
+        }
+
+        /**
+         * 设置可以上传日志的网络类型.
+         *
+         * @param uploadNetworkType 设置的网络类型
+         * @return LoggerConfigurator
+         */
+        public Builder setUploadNetworkType(int... uploadNetworkType) {
+            this.uploadNetworkType = uploadNetworkType;
+            return this;
+        }
+
+        /**
+         * 设置需要上传的日志级别.
+         *
+         * @param uploadLogLevel 日志级别
+         * @return LoggerConfigurator
+         */
+        public Builder setUploadLogLevel(int... uploadLogLevel) {
+            this.uploadLogLevel = uploadLogLevel;
+            return this;
+        }
+
+        /**
+         * 设置是否上传已经上传的日志文件.
+         *
+         * @param deleteUploadedLogFile 是否删除
+         * @return LoggerConfigurator
+         */
+        public Builder setDeleteUploadedLogFile(boolean deleteUploadedLogFile) {
+            this.deleteUploadedLogFile = deleteUploadedLogFile;
+            return this;
+        }
+
+        /**
+         * 设置定时任务周期.
+         *
+         * @param updateSystemFrequency 周期时间
+         * @return LoggerConfigurator
+         */
+        public Builder setUpdateSystemFrequency(long updateSystemFrequency) {
+            this.updateSystemFrequency = updateSystemFrequency;
+            return this;
+        }
+
+        /**
+         * 设置同时写入的文件数量.
+         *
+         * @param activeLogWriter 文件数量
+         * @return LoggerConfigurator
+         */
+        public Builder setActiveLogWriter(int activeLogWriter) {
+            this.activeLogWriter = activeLogWriter;
+            return this;
+        }
+
+        /**
+         * 设置同时上传的日志文件个数.
+         *
+         * @param activeUploadTask 文件数量
+         * @return LoggerConfigurator
+         */
+        public Builder setActiveUploadTask(int activeUploadTask) {
+            this.activeUploadTask = activeUploadTask;
+            return this;
+        }
+
+        /**
+         * 设置时候自动捕捉异常.
+         *
+         * @param caughtException 设置的值
+         * @return LoggerConfigurator
+         */
+        public Builder setCaughtException(boolean caughtException) {
+            this.caughtException = caughtException;
+            return this;
+        }
+
+        /**
+         * 设置默认的消息模板.
+         *
+         * @param defaultMsgLayout 消息模板内容
+         */
+        public Builder setDefaultMsgLayout(String defaultMsgLayout) {
+            this.defaultMsgLayout = defaultMsgLayout;
+            return this;
+        }
+
+        /**
+         * 设置默认的 logger 名称.
+         *
+         * @param defaultLoggerName Logger 名称
+         */
+        public Builder setDefaultLoggerName(String defaultLoggerName) {
+            this.defaultLoggerName = defaultLoggerName;
+            return this;
+        }
+
+        /**
+         * 设置截图压缩质量.
+         *
+         * @param screenshotQuality 压缩数值
+         */
+        public Builder setScreenshotQuality(int screenshotQuality) {
+            if (screenshotQuality >= 1 && screenshotQuality <= 100) {
+                this.screenshotQuality = screenshotQuality;
+            } else {
+                LogUtil.w(TAG, "Screenshot quality value must be set 1 ~ 100.");
+            }
+            return this;
+        }
+
+        /**
+         * 设置截图缩放比例.
+         *
+         * @param screenshotScale 缩放比例
+         */
+        public Builder setScreenshotScale(float screenshotScale) {
+            if (screenshotScale >= 0.1 && screenshotScale <= 1) {
+                this.screenshotScale = screenshotScale;
+            } else {
+                LogUtil.w(TAG, "Screenshot scale value must be set 0.1 ~ 1.0.");
+            }
+            return this;
+        }
+
+        public Builder setSecurityProvider(SecurityProvider newProvider) {
+            this.securityProvider = newProvider;
+            return this;
+        }
+
+        public LoggerConfigurator build() {
+            LoggerConfigurator configurator = new LoggerConfigurator();
+            configurator.logFileMaxSize = this.logFileMaxSize;
+            configurator.uploadNetworkType = this.uploadNetworkType;
+            configurator.uploadLogLevel = this.uploadLogLevel;
+            configurator.updateSystemFrequency = this.updateSystemFrequency;
+            configurator.activeUploadTask = this.activeUploadTask;
+            configurator.activeLogWriter = this.activeLogWriter;
+            configurator.deleteUploadedLogFile = this.deleteUploadedLogFile;
+            configurator.caughtException = this.caughtException;
+            configurator.defaultLoggerName = this.defaultLoggerName;
+            configurator.defaultMsgLayout = this.defaultMsgLayout;
+            configurator.screenshotQuality = this.screenshotQuality;
+            configurator.screenshotScale = this.screenshotScale;
+            configurator.securityProvider = this.securityProvider;
+            return configurator;
+        }
     }
 }

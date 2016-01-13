@@ -2,18 +2,19 @@ package com.getui.logful;
 
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
 
 import com.getui.logful.annotation.LogProperties;
 import com.getui.logful.appender.AsyncAppenderManager;
+import com.getui.logful.config.LogfulConfigurer;
 import com.getui.logful.db.DatabaseManager;
 import com.getui.logful.exception.ExceptionReporter;
 import com.getui.logful.net.ClientUserInitService;
 import com.getui.logful.net.TransferManager;
 import com.getui.logful.util.LogUtil;
-import com.getui.logful.util.ParsePassThroughData;
 import com.getui.logful.util.StringUtils;
 import com.getui.logful.util.SystemConfig;
+
+import org.json.JSONObject;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
@@ -31,12 +32,13 @@ public class LoggerFactory {
 
     private static final Lock lock = new ReentrantLock();
 
-    /**
-     * 是否已初始化.
-     */
+    private static String annotationLoggerName;
+
+    private static String annotationMsgLayout;
+
     private static boolean initialized = false;
 
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = false;
 
     private static final ConcurrentHashMap<String, Logger> loggerCache = new ConcurrentHashMap<String, Logger>();
 
@@ -58,44 +60,17 @@ public class LoggerFactory {
      */
     public static void init(Application application, LoggerConfigurator configuration) {
         LoggerFactory.loggerApplication = application;
-
-        String annotationLoggerName = null;
-        String annotationMsgLayout = null;
-
-        // 读取注解设置内容.
         Class<?> applicationClass = application.getClass();
         LogProperties logProperties = applicationClass.getAnnotation(LogProperties.class);
         if (logProperties != null) {
             annotationLoggerName = logProperties.defaultLogger();
             annotationMsgLayout = logProperties.defaultMsgLayout();
         }
-
-        // 获取 LoggerConfigurator 设置内容.
-        String loggerName = configuration.getDefaultLoggerName();
-        String msgLayout = configuration.getDefaultMsgLayout();
-
-        // 优先读取 config 设置的值.
-        if (StringUtils.isEmpty(loggerName)) {
-            if (!StringUtils.isEmpty(annotationLoggerName)) {
-                configuration.setDefaultLoggerName(annotationLoggerName);
-            } else {
-                configuration.setDefaultLoggerName(LoggerConstants.DEFAULT_LOGGER_NAME);
-            }
-        }
-
-        if (StringUtils.isEmpty(msgLayout)) {
-            if (!StringUtils.isEmpty(annotationMsgLayout)) {
-                configuration.setDefaultMsgLayout(annotationMsgLayout);
-            } else {
-                configuration.setDefaultMsgLayout(LoggerConstants.DEFAULT_MSG_LAYOUT);
-            }
-        }
-
         LoggerFactory.init(application.getApplicationContext(), configuration);
     }
 
     public static void init(Context context) {
-        LoggerConfigurator configuration = LoggerConfigurator.build();
+        LoggerConfigurator configuration = LoggerConfigurator.newBuilder().build();
         LoggerFactory.init(context.getApplicationContext(), configuration);
     }
 
@@ -108,16 +83,15 @@ public class LoggerFactory {
             return;
         }
 
-        LogUtil.DEBUG = LoggerFactory.DEBUG;
-
         LoggerFactory.loggerContext = context.getApplicationContext();
         LoggerFactory.loggerConfiguration = configuration;
 
-        // 读取系统配置文件.
-        SystemConfig.read();
-
         // 初始化数据库.
         DatabaseManager.manager();
+
+        // 读取存储的配置信息.
+        LogfulConfigurer.config().setFrequency(configuration.getUpdateSystemFrequency(), false, false);
+        LogfulConfigurer.config().implement();
 
         if (configuration.isCaughtException()) {
             // 捕捉未捕捉到的异常信息.
@@ -132,35 +106,33 @@ public class LoggerFactory {
         lock.unlock();
 
         // Read pre log event cache.
-        if (SystemConfig.isOn()) {
+        if (LogfulConfigurer.config().on()) {
             AsyncAppenderManager.readCache();
         }
     }
 
     private static String defaultLoggerName() {
-        if (loggerConfiguration == null) {
-            return LoggerConstants.DEFAULT_LOGGER_NAME;
+        if (loggerConfiguration != null
+                && !StringUtils.isEmpty(loggerConfiguration.getDefaultLoggerName())) {
+            return loggerConfiguration.getDefaultLoggerName();
+        } else {
+            if (!StringUtils.isEmpty(annotationLoggerName)) {
+                return annotationLoggerName;
+            }
         }
-
-        String loggerName = loggerConfiguration.getDefaultLoggerName();
-        if (StringUtils.isEmpty(loggerName)) {
-            return LoggerConstants.DEFAULT_LOGGER_NAME;
-        }
-
-        return loggerName;
+        return LoggerConstants.DEFAULT_LOGGER_NAME;
     }
 
     private static String defaultMsgLayout() {
-        if (loggerConfiguration == null) {
-            return LoggerConstants.DEFAULT_MSG_LAYOUT;
+        if (loggerConfiguration != null
+                && !StringUtils.isEmpty(loggerConfiguration.getDefaultMsgLayout())) {
+            return loggerConfiguration.getDefaultMsgLayout();
+        } else {
+            if (!StringUtils.isEmpty(annotationMsgLayout)) {
+                return annotationMsgLayout;
+            }
         }
-
-        String msgLayout = loggerConfiguration.getDefaultMsgLayout();
-        if (StringUtils.isEmpty(msgLayout)) {
-            return LoggerConstants.DEFAULT_MSG_LAYOUT;
-        }
-
-        return msgLayout;
+        return LoggerConstants.DEFAULT_MSG_LAYOUT;
     }
 
     public static Application application() {
@@ -173,6 +145,14 @@ public class LoggerFactory {
 
     public static Context context() {
         return loggerContext;
+    }
+
+    public static void setDebug(boolean debug) {
+        LoggerFactory.DEBUG = debug;
+    }
+
+    public static boolean isDebug() {
+        return LoggerFactory.DEBUG;
     }
 
     /**
@@ -248,8 +228,7 @@ public class LoggerFactory {
      */
     public static void turnOnLog() {
         if (initialized) {
-            SystemConfig.saveStatus(true);
-
+            LogfulConfigurer.config().setOn(true, true, true);
             // Read pre log event cache.
             AsyncAppenderManager.readCache();
         }
@@ -260,7 +239,7 @@ public class LoggerFactory {
      */
     public static void turnOffLog() {
         if (initialized) {
-            SystemConfig.saveStatus(false);
+            LogfulConfigurer.config().setOn(false, true, true);
         }
     }
 
@@ -270,7 +249,7 @@ public class LoggerFactory {
      * @return 是否打开
      */
     public static boolean isOn() {
-        return initialized && SystemConfig.isOn();
+        return initialized && LogfulConfigurer.config().on();
     }
 
     /**
@@ -311,25 +290,20 @@ public class LoggerFactory {
     /**
      * 解析推送控制日志动作链.
      *
-     * @param transaction 动作链内容
+     * @param data 动作链内容
      */
-    public static void parseTransaction(String transaction) {
+    public static void parseTransmission(String data) {
+        LogUtil.i(TAG, "Receive payload: " + data);
         if (initialized) {
             try {
-                Log.d(TAG, "**************");
-                ParsePassThroughData.parseData(transaction);
+                JSONObject object = new JSONObject(data);
+                if (object.has("logful")) {
+                    LogfulConfigurer.config().parse(object.getJSONObject("logful"), true, true);
+                }
             } catch (Exception e) {
                 LogUtil.e(TAG, "", e);
             }
         }
-    }
-
-    public static void bindPushSdk(String deviceId) {
-        if (StringUtils.isEmpty(deviceId)) {
-            LogUtil.w(TAG, "Device id is empty!");
-            return;
-        }
-        ClientUserInitService.bind(deviceId);
     }
 
     /**

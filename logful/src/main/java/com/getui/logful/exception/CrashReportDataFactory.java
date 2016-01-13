@@ -23,6 +23,9 @@ public class CrashReportDataFactory {
         // Generate uid
         crashReportData.setUid(UUID.randomUUID().toString());
 
+        // Exception cause type
+        crashReportData.setExceptionCause(throwable.getClass().getName());
+
         // Collect throwable stack trace
         crashReportData.setStackTrace(stackTrace(throwable));
 

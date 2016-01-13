@@ -1,6 +1,11 @@
 package com.getui.logful.util;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class FileUtils {
 
@@ -37,4 +42,26 @@ public class FileUtils {
         return false;
     }
 
+    public static String read(File filePath) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        try {
+            StringBuilder sb = new StringBuilder();
+            String line = reader.readLine();
+            while (line != null) {
+                sb.append(line);
+                sb.append("\n");
+                line = reader.readLine();
+            }
+            return sb.toString();
+        } finally {
+            reader.close();
+        }
+    }
+
+    public static void write(File file, String content, boolean append) throws IOException {
+        BufferedWriter out = new BufferedWriter(new FileWriter(file, append), 2048);
+        out.write(content);
+        out.flush();
+        out.close();
+    }
 }
