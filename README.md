@@ -19,7 +19,7 @@ Logful logging sdk for Android. Refer to [https://logful.github.io/](https://log
 
 ```
 dependencies {
-    compile('com.getui:logful:0.2.0')
+    compile('com.getui:logful:0.3.0')
 }
 ```
 
@@ -69,7 +69,7 @@ logger.verbose(TAG, "verbose message", true);
 ## License
 The MIT License (MIT)
 
-Copyright (c) 2015 Zhejiang Meiri Hudong Network Technology Co. Ltd.
+Copyright (c) 2015-2016 Zhejiang Meiri Hudong Network Technology Co. Ltd.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
