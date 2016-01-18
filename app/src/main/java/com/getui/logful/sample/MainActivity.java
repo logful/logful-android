@@ -73,8 +73,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 captureScreen();
             }
         });
-
-        LoggerFactory.bindAlias("alias name");
     }
 
     @Override

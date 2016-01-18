@@ -44,6 +44,7 @@ public class LogfulConfigurer implements Configurer {
     }
 
     public void load() {
+        // TODO
         File configFile = LogStorage.configFile();
         if (configFile != null && configFile.isFile()) {
             try {

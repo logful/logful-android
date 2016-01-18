@@ -64,9 +64,9 @@ public class LoggerConstants {
 
     public static final boolean DEFAULT_CAUGHT_EXCEPTION = false;
 
-    public static final int[] DEFAULT_UPLOAD_NETWORK_TYPE = new int[]{Constants.TYPE_WIFI, Constants.TYPE_MOBILE};
+    public static final int[] DEFAULT_UPLOAD_NETWORK_TYPE = {Constants.TYPE_WIFI, Constants.TYPE_MOBILE};
 
-    public static final int[] DEFAULT_UPLOAD_LOG_LEVEL = new int[]{Constants.VERBOSE, Constants.DEBUG, Constants.INFO,
+    public static final int[] DEFAULT_UPLOAD_LOG_LEVEL = {Constants.VERBOSE, Constants.DEBUG, Constants.INFO,
             Constants.WARN, Constants.ERROR, Constants.EXCEPTION, Constants.FATAL};
 
     public static final long DEFAULT_LOG_FILE_MAX_SIZE = 524288;
@@ -95,14 +95,6 @@ public class LoggerConstants {
 
     public static final String CHARSET = "UTF-8";
 
-    /**
-     * 系统配置文件名称.
-     */
-    public static final String SYSTEM_CONFIG_FILE_NAME = "logful_system_config.bin";
-
-    /**
-     * 日志库当前版本.
-     */
     public static final String VERSION = "0.3.0";
 
     public static final int STATE_ALL = 0x00;

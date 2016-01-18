@@ -95,10 +95,12 @@ public class ClientUserInitService {
                     request.header("Authorization", authorization);
                     request.part("grant_type", "client_credentials");
                     request.part("scope", "client");
-                    if (request.ok()) {
-                        String body = request.body();
-                        LogUtil.i(TAG, body);
-
+                    int code = request.code();
+                    String body = request.body();
+                    if (!StringUtils.isEmpty(body)) {
+                        LogUtil.d(TAG, body);
+                    }
+                    if (code == 200) {
                         JSONObject object = new JSONObject(body);
                         accessToken = object.optString("access_token");
                         tokenType = object.optString("token_type");
@@ -106,9 +108,11 @@ public class ClientUserInitService {
                         authorizationTime = System.currentTimeMillis();
                         CryptoTool.addPublicKey(object.optString("public_key"));
 
-                        LogUtil.i(TAG, "Client user authenticate successful!");
+                        LogUtil.d(TAG, "Client user authenticate successful!");
                         // Send client user report information.
                         sendUserReport();
+                    } else {
+                        LogUtil.w(TAG, "Client user authenticate failed!");
                     }
                 } catch (Exception e) {
                     LogUtil.e(TAG, "", e);

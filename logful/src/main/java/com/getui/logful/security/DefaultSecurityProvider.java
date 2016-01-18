@@ -9,18 +9,19 @@ public class DefaultSecurityProvider implements SecurityProvider {
 
     private byte[] saltData;
 
-    public DefaultSecurityProvider() {
-        this.passwordData = SystemConfig.appKey().getBytes();
-        this.saltData = UidTool.uid().getBytes();
-    }
-
     @Override
     public byte[] password() {
+        if (passwordData == null) {
+            this.passwordData = SystemConfig.appKey().getBytes();
+        }
         return passwordData;
     }
 
     @Override
     public byte[] salt() {
+        if (saltData == null) {
+            this.saltData = UidTool.uid().getBytes();
+        }
         return saltData;
     }
 }

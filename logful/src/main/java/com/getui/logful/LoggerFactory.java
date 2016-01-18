@@ -90,8 +90,7 @@ public class LoggerFactory {
         DatabaseManager.manager();
 
         // 读取存储的配置信息.
-        LogfulConfigurer.config().setFrequency(configuration.getUpdateSystemFrequency(), false, false);
-        LogfulConfigurer.config().implement();
+        LogfulConfigurer.config().setFrequency(configuration.getUpdateSystemFrequency(), false, true);
 
         if (configuration.isCaughtException()) {
             // 捕捉未捕捉到的异常信息.
