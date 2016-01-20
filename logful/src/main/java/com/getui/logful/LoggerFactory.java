@@ -1,5 +1,6 @@
 package com.getui.logful;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 
@@ -45,11 +46,30 @@ public class LoggerFactory {
     /**
      * LoggerFactory init.
      *
+     * @param activity Activity
+     */
+    public static void init(Activity activity) {
+        LoggerFactory.init(activity.getApplication());
+    }
+
+    /**
+     * LoggerFactory init.
+     *
+     * @param activity      Activity
+     * @param configuration LoggerConfigurator
+     */
+    public static void init(Activity activity, LoggerConfigurator configuration) {
+        LoggerFactory.init(activity.getApplication(), configuration);
+    }
+
+    /**
+     * LoggerFactory init.
+     *
      * @param application Application
      */
     public static void init(Application application) {
-        LoggerFactory.loggerApplication = application;
-        LoggerFactory.init(application.getApplicationContext());
+        LoggerConfigurator configuration = LoggerConfigurator.newBuilder().build();
+        LoggerFactory.init(application, configuration);
     }
 
     /**
@@ -59,22 +79,6 @@ public class LoggerFactory {
      * @param configuration LoggerConfigurator
      */
     public static void init(Application application, LoggerConfigurator configuration) {
-        LoggerFactory.loggerApplication = application;
-        Class<?> applicationClass = application.getClass();
-        LogProperties logProperties = applicationClass.getAnnotation(LogProperties.class);
-        if (logProperties != null) {
-            annotationLoggerName = logProperties.defaultLogger();
-            annotationMsgLayout = logProperties.defaultMsgLayout();
-        }
-        LoggerFactory.init(application.getApplicationContext(), configuration);
-    }
-
-    public static void init(Context context) {
-        LoggerConfigurator configuration = LoggerConfigurator.newBuilder().build();
-        LoggerFactory.init(context.getApplicationContext(), configuration);
-    }
-
-    public static void init(Context context, LoggerConfigurator configuration) {
         lock.lock();
 
         if (LoggerFactory.initialized) {
@@ -83,7 +87,15 @@ public class LoggerFactory {
             return;
         }
 
-        LoggerFactory.loggerContext = context.getApplicationContext();
+        Class<?> applicationClass = application.getClass();
+        LogProperties logProperties = applicationClass.getAnnotation(LogProperties.class);
+        if (logProperties != null) {
+            annotationLoggerName = logProperties.defaultLogger();
+            annotationMsgLayout = logProperties.defaultMsgLayout();
+        }
+
+        LoggerFactory.loggerApplication = application;
+        LoggerFactory.loggerContext = application.getApplicationContext();
         LoggerFactory.loggerConfiguration = configuration;
 
         // 初始化数据库.
@@ -102,12 +114,12 @@ public class LoggerFactory {
 
         LoggerFactory.initialized = true;
 
-        lock.unlock();
-
-        // Read pre log event cache.
+        // 读取缓存日志.
         if (LogfulConfigurer.config().on()) {
             AsyncAppenderManager.readCache();
         }
+
+        lock.unlock();
     }
 
     private static String defaultLoggerName() {
@@ -135,7 +147,6 @@ public class LoggerFactory {
     }
 
     public static Application application() {
-        // TODO May be null
         if (loggerApplication != null) {
             return loggerApplication;
         }

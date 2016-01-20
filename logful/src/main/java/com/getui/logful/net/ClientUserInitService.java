@@ -91,7 +91,7 @@ public class ClientUserInitService {
                     request = HttpRequest.post(url);
                     request.header("Accept", "application/json");
                     String temp = appKey + ":" + appSecret;
-                    String authorization = "Basic " + Base64.encodeToString(temp.getBytes(), Base64.NO_WRAP);
+                    String authorization = "Basic " + HttpRequest.Base64.encode(temp);
                     request.header("Authorization", authorization);
                     request.part("grant_type", "client_credentials");
                     request.part("scope", "client");
@@ -204,7 +204,7 @@ public class ClientUserInitService {
             JSONObject object = new JSONObject();
             object.put("sdkVersion", LoggerFactory.version());
             object.put("signature", signature);
-            object.put("chunk", Base64.encodeToString(data, Base64.NO_WRAP));
+            object.put("chunk", HttpRequest.Base64.encodeBytes(data));
 
             request.send(object.toString().getBytes());
 

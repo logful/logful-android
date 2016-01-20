@@ -112,7 +112,7 @@ public class UploadLogFileEvent extends UploadEvent {
                 JSONObject payloadObject = new JSONObject();
                 payloadObject.put("sdkVersion", LoggerFactory.version());
                 payloadObject.put("signature", signature);
-                payloadObject.put("chunk", Base64.encodeToString(data, Base64.NO_WRAP));
+                payloadObject.put("chunk", HttpRequest.Base64.encodeBytes(data));
                 payload = payloadObject.toString();
             } catch (JSONException e) {
                 LogUtil.e(TAG, "", e);

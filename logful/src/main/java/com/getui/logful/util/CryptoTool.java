@@ -1,7 +1,5 @@
 package com.getui.logful.util;
 
-import android.util.Base64;
-
 import com.getui.logful.LoggerConfigurator;
 import com.getui.logful.LoggerFactory;
 import com.getui.logful.security.SecurityProvider;
@@ -16,11 +14,11 @@ public class CryptoTool {
 
     private static byte[] errorBytes = new byte[]{0x00, 0x00};
 
-    public static void addPublicKey(String keyString) {
+    public static synchronized void addPublicKey(String keyString) {
         pemPublicKeyString = keyString;
     }
 
-    public static String securityString() {
+    public static synchronized String securityString() {
         LoggerConfigurator configurator = LoggerFactory.config();
         if (configurator == null) {
             return null;
@@ -41,7 +39,7 @@ public class CryptoTool {
             byte[] saltBytes = provider.salt();
             byte[] result = security(keyBytes, keyBytes.length, pwdBytes, pwdBytes.length, saltBytes, saltBytes.length);
             if (result != null) {
-                securityKeyString = Base64.encodeToString(result, Base64.NO_WRAP);
+                securityKeyString = HttpRequest.Base64.encodeBytes(result);
                 return securityKeyString;
             }
         } catch (Throwable e) {

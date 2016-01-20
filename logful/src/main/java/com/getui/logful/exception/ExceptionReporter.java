@@ -55,7 +55,7 @@ public class ExceptionReporter implements Thread.UncaughtExceptionHandler, Activ
     public ExceptionReporter() {
         Application application = LoggerFactory.application();
         if (application == null) {
-            throw new NullPointerException("APPLICATION IS NULL");
+            throw new NullPointerException("Application is null!");
         }
 
         this.startTimeMillis = System.currentTimeMillis();

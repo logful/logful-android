@@ -13,6 +13,7 @@ import com.getui.logful.util.LogUtil;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -170,7 +171,11 @@ public class TransferManager {
             while (true) {
                 UploadEvent task = queue.poll();
                 if (task != null) {
-                    getExecutor().submit(task);
+                    try {
+                        getExecutor().submit(task);
+                    } catch (RejectedExecutionException e) {
+                        LogUtil.e(TAG, "", e);
+                    }
                 } else {
                     break;
                 }
