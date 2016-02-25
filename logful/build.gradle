@@ -13,7 +13,7 @@ uploadArchives {
             }
             pom.groupId = "com.getui"
             pom.artifactId = "logful"
-            pom.version = "0.2.1"
+            pom.version = "0.3.0"
         }
     }
 }
@@ -43,6 +43,7 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_6
         targetCompatibility JavaVersion.VERSION_1_7
@@ -52,8 +53,8 @@ android {
 dependencies {
 }
 
-//apply from: 'library-artifacts.gradle'
-//apply from: 'bintray-release.gradle'
+apply from: 'library-artifacts.gradle'
+apply from: 'bintray-release.gradle'
 
 checkstyle {
     toolVersion = "6.6"

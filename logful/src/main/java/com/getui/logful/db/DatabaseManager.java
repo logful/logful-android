@@ -27,8 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DatabaseManager extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "logful.db";
-
     private static final String TABLE_LOG_FILE_META = "logful_log_meta";
     private static final String TABLE_CRASH_REPORT_FILE_META = "logful_crash_meta";
     private static final String TABLE_MSG_LAYOUT = "logful_layout";
@@ -74,7 +72,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private static final String AND = " AND ";
 
-    private static final int SCHEMA_VERSION = 11;
+    private static final int SCHEMA_VERSION = 16;
 
     private static ConcurrentHashMap<String, Short> layoutMap = new ConcurrentHashMap<String, Short>();
 
@@ -91,7 +89,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     private DatabaseManager(Context context) {
-        super(context, DATABASE_NAME, null, SCHEMA_VERSION);
+        super(context, LoggerConstants.DATABASE_NAME, null, SCHEMA_VERSION);
     }
 
     @Override
@@ -135,7 +133,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + LoggerConstants.DATABASE_NAME);
         onCreate(db);
     }
 

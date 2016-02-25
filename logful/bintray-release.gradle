@@ -36,11 +36,23 @@ publishing {
 }
 
 def getBintrayUserProperty() {
-    return hasProperty('BINTRAY_USER') ? BINTRAY_USER : ""
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    def bintrayUser = properties.getProperty('bintray.user', null)
+    if (bintrayUser == null) {
+        return ""
+    }
+    return bintrayUser
 }
 
 def getBintrayApiKeyProperty() {
-    return hasProperty('BINTRAY_APIKEY') ? BINTRAY_APIKEY : ""
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    def bintrayApiKey = properties.getProperty('bintray.apikey', null)
+    if (bintrayApiKey == null) {
+        return ""
+    }
+    return bintrayApiKey
 }
 
 // gradle bintrayUpload

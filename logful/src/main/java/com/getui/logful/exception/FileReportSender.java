@@ -67,7 +67,7 @@ public class FileReportSender implements ReportSender {
     }
 
     private String crashReportFileName() {
-        return LoggerConstants.CRASH_REPORT_FILE_PREFIX + "-" + System.currentTimeMillis() + ".bin";
+        return "crash-report-" + System.currentTimeMillis() + ".bin";
     }
 
     private void upload(CrashReportFileMeta meta) {

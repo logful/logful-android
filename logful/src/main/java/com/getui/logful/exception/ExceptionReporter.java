@@ -139,18 +139,18 @@ public class ExceptionReporter implements Thread.UncaughtExceptionHandler, Activ
      * 退出应用程序.
      */
     private void exitApplication(final Thread thread, final Throwable throwable) {
-        if (defaultUncaughtExceptionHandler != null) {
-            Thread.setDefaultUncaughtExceptionHandler(defaultUncaughtExceptionHandler);
-            defaultUncaughtExceptionHandler.uncaughtException(thread, throwable);
-        } else {
-            final Activity lastActivity = lastActivityCreated.get();
-            if (lastActivity != null) {
-                lastActivity.finish();
-                lastActivityCreated.clear();
-            }
-            android.os.Process.killProcess(android.os.Process.myPid());
-            System.exit(10);
+//        if (defaultUncaughtExceptionHandler != null) {
+//            Thread.setDefaultUncaughtExceptionHandler(defaultUncaughtExceptionHandler);
+//            defaultUncaughtExceptionHandler.uncaughtException(thread, throwable);
+//        }
+
+        final Activity lastActivity = lastActivityCreated.get();
+        if (lastActivity != null) {
+            lastActivity.finish();
+            lastActivityCreated.clear();
         }
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(10);
     }
 
     @Override

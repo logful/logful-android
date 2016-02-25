@@ -1,2 +1,1 @@
-APP_ABI := armeabi
-LOCAL_ARM_NEON := true
+APP_ABI := arm64-v8a

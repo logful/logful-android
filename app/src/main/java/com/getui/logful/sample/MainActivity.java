@@ -10,7 +10,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.getui.logful.Logger;
-import com.getui.logful.LoggerConfigurator;
 import com.getui.logful.LoggerFactory;
 
 import java.util.UUID;
@@ -23,17 +22,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        LoggerConfigurator.Builder builder = LoggerConfigurator.newBuilder();
-        builder.setCaughtException(true);
-        builder.setDefaultLoggerName("logger");
-        builder.setDefaultMsgLayout("s,sendMessage,%s|g,getMessage,%s|r,result,%n|b,back,%n|c,call,%n");
-
-        LoggerFactory.setApiUrl("http://demo.logful.aoapp.com:9600");
-        LoggerFactory.setAppKey("beed06257195f47de875fa222c636769");
-        LoggerFactory.setAppSecret("9bd521b5bdc5d5ae3b54380495f10e55");
-        LoggerFactory.setDebug(true);
-        LoggerFactory.init(this, builder.build());
 
         setContentView(R.layout.activity_main);
 
@@ -98,12 +86,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         log(view.getId(), "app");
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
     private void captureScreen() {
         LoggerFactory.debug(TAG, "some debug message", true);
     }
 
     private void crash() {
-        throw new IllegalArgumentException("Test caught crash");
+        throw new RuntimeException("force crash");
     }
 
     private void log(int viewId, String loggerName) {

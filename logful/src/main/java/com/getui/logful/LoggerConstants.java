@@ -2,6 +2,28 @@ package com.getui.logful;
 
 public class LoggerConstants {
 
+    public static final String DATABASE_NAME = "logful.db";
+
+    /**
+     * 日志文件存储文件夹名称.
+     */
+    public static final String LOG_DIR_NAME = "log";
+
+    /**
+     * 崩溃日志文件存储文件夹.
+     */
+    public static final String CRASH_REPORT_DIR_NAME = "crash";
+
+    /**
+     * 附件截图文件夹名称.
+     */
+    public static final String ATTACHMENT_DIR_NAME = "attachment";
+
+    /**
+     * 本地配置文件名称.
+     */
+    public static final String CONFIG_FILE_NAME = "logful.config";
+
     public static final String VERBOSE_NAME = "verbose";
 
     public static final String DEBUG_NAME = "debug";
@@ -36,25 +58,6 @@ public class LoggerConstants {
                 return VERBOSE_NAME;
         }
     }
-
-    /**
-     * 日志文件存储文件夹名称.
-     */
-    public static final String LOG_DIR_NAME = "log";
-
-    /**
-     * 崩溃日志文件存储文件夹.
-     */
-    public static final String CRASH_REPORT_DIR_NAME = "crash";
-
-    /**
-     * 崩溃日志记录文件名称.
-     */
-    public static final String CRASH_REPORT_FILE_PREFIX = "crash-report";
-
-    public static final String ATTACHMENT_DIR_NAME = "attachment";
-
-    public static final String CONFIG_FILE_NAME = "logful.config";
 
     public static final int DEFAULT_ACTIVE_UPLOAD_TASK = 2;
 
@@ -114,6 +117,8 @@ public class LoggerConstants {
     public static final int DEFAULT_SCREENSHOT_QUALITY = 80;
 
     public static final float DEFAULT_SCREENSHOT_SCALE = 0.5f;
+
+    public static final boolean DEFAULT_USE_NATIVE_CRYPTOR = true;
 
     public static final int PLATFORM_ANDROID = 1;
 }

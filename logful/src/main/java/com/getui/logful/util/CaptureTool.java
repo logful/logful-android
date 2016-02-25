@@ -91,6 +91,7 @@ public class CaptureTool {
             Collection collection = null;
             try {
                 Object object = activitiesField.get(activityThread);
+                // Begin api level 19 Google use ArrayMap instead of HashMap.
                 if (object instanceof HashMap) {
                     HashMap activities = (HashMap) object;
                     collection = activities.values();
@@ -134,7 +135,7 @@ public class CaptureTool {
         private int sequence;
 
         public CaptureTask(Logger logger, final int level, final String tag, final String msg, final String filename,
-                final String filePath, final int location, final int sequence) {
+                           final String filePath, final int location, final int sequence) {
             this.logger = logger;
             this.level = level;
             this.tag = tag;

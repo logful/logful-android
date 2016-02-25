@@ -12,6 +12,7 @@ public class Compatibility {
         public static final int ICE_CREAM_SANDWICH = 14;
         public static final int JELLY_BEAN = 16;
         public static final int JELLY_BEAN_MR1 = 17;
+        public static final int KITKAT = 19;
         public static final int LOLLIPOP = 21;
     }
 

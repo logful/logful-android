@@ -67,6 +67,11 @@ public class LoggerConfigurator {
      */
     private float screenshotScale;
 
+    /**
+     * 是否使用 jni 加密内容.
+     */
+    private boolean useNativeCryptor;
+
     private SecurityProvider securityProvider;
 
     public static Builder newBuilder() {
@@ -177,6 +182,15 @@ public class LoggerConfigurator {
     }
 
     /**
+     * 是否使用 jni native 加密.
+     *
+     * @return true 如果使用 jni native 加密
+     */
+    public boolean isUseNativeCryptor() {
+        return useNativeCryptor;
+    }
+
+    /**
      * 获取设置的截图缩放比例.
      *
      * @return 缩放比例
@@ -200,6 +214,7 @@ public class LoggerConfigurator {
         private String defaultMsgLayout = LoggerConstants.DEFAULT_MSG_LAYOUT;
         private int screenshotQuality = LoggerConstants.DEFAULT_SCREENSHOT_QUALITY;
         private float screenshotScale = LoggerConstants.DEFAULT_SCREENSHOT_SCALE;
+        private boolean useNativeCryptor = LoggerConstants.DEFAULT_USE_NATIVE_CRYPTOR;
         private SecurityProvider securityProvider = new DefaultSecurityProvider();
 
         /**
@@ -338,6 +353,11 @@ public class LoggerConfigurator {
             return this;
         }
 
+        public Builder setUseNativeCryptor(boolean useNativeCryptor) {
+            this.useNativeCryptor = useNativeCryptor;
+            return this;
+        }
+
         public Builder setSecurityProvider(SecurityProvider newProvider) {
             this.securityProvider = newProvider;
             return this;
@@ -357,6 +377,7 @@ public class LoggerConfigurator {
             configurator.defaultMsgLayout = this.defaultMsgLayout;
             configurator.screenshotQuality = this.screenshotQuality;
             configurator.screenshotScale = this.screenshotScale;
+            configurator.useNativeCryptor = this.useNativeCryptor;
             configurator.securityProvider = this.securityProvider;
             return configurator;
         }
