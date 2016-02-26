@@ -7,8 +7,8 @@ import android.content.Context;
 import com.getui.logful.annotation.LogProperties;
 import com.getui.logful.appender.AsyncAppenderManager;
 import com.getui.logful.config.LogfulConfigurer;
+import com.getui.logful.crash.CrashReporter;
 import com.getui.logful.db.DatabaseManager;
-import com.getui.logful.exception.ExceptionReporter;
 import com.getui.logful.net.ClientUserInitService;
 import com.getui.logful.net.TransferManager;
 import com.getui.logful.util.LogUtil;
@@ -106,7 +106,7 @@ public class LoggerFactory {
 
         if (configuration.isCaughtException()) {
             // 捕捉未捕捉到的异常信息.
-            ExceptionReporter.caught();
+            CrashReporter.caught();
         }
 
         // 用户授权.

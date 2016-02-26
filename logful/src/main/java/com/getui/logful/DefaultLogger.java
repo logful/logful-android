@@ -2,7 +2,7 @@ package com.getui.logful;
 
 import com.getui.logful.appender.AsyncAppenderManager;
 import com.getui.logful.appender.DefaultEvent;
-import com.getui.logful.util.CaptureTool;
+import com.getui.logful.util.CaptureUtils;
 import com.getui.logful.util.StringUtils;
 import com.getui.logful.util.VerifyMsgLayout;
 
@@ -157,7 +157,7 @@ public class DefaultLogger extends AbstractLogger {
         }
 
         if (capture) {
-            CaptureTool.captureThenLog(this, level, tag, message);
+            CaptureUtils.captureThenLog(this, level, tag, message);
         } else {
             DefaultEvent event = DefaultEvent.createEvent(getName(), level, tag, message, msgLayout);
             AsyncAppenderManager.manager().append(event);

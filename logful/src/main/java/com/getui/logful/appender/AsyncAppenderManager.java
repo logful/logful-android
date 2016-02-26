@@ -7,7 +7,7 @@ import com.getui.logful.db.DatabaseManager;
 import com.getui.logful.entity.LogFileMeta;
 import com.getui.logful.layout.BinaryLayout;
 import com.getui.logful.util.BoundedPriorityBlockingQueue;
-import com.getui.logful.util.DateTimeUtil;
+import com.getui.logful.util.DateTimeUtils;
 import com.getui.logful.util.LogStorage;
 import com.getui.logful.util.LogUtil;
 import com.getui.logful.util.LruCache;
@@ -314,7 +314,7 @@ public class AsyncAppenderManager {
      * @return 日志文件名
      */
     private String generateFilename(LogEvent event, int fragment) {
-        return String.format("%s-%s-%s-%d.bin", event.getLoggerName(), DateTimeUtil.dateString(),
+        return String.format("%s-%s-%s-%d.bin", event.getLoggerName(), DateTimeUtils.dateString(),
                 LoggerConstants.getLogLevelName(event.getLevel()), fragment);
     }
 

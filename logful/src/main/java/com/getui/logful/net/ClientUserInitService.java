@@ -1,7 +1,6 @@
 package com.getui.logful.net;
 
 import android.os.Build;
-import android.util.Base64;
 
 import com.getui.logful.LoggerConstants;
 import com.getui.logful.LoggerFactory;
@@ -12,7 +11,7 @@ import com.getui.logful.util.LogUtil;
 import com.getui.logful.util.StringUtils;
 import com.getui.logful.util.SystemConfig;
 import com.getui.logful.util.SystemInfo;
-import com.getui.logful.util.UidTool;
+import com.getui.logful.util.UIDUtils;
 
 import org.json.JSONObject;
 
@@ -154,7 +153,7 @@ public class ClientUserInitService {
             JSONObject object = new JSONObject();
             object.put("sdkVersion", LoggerFactory.version());
             object.put("platform", LoggerConstants.PLATFORM_ANDROID);
-            object.put("uid", UidTool.uid());
+            object.put("uid", UIDUtils.uid());
             object.put("appId", SystemInfo.appId());
             object.put("deviceId", deviceId);
 
@@ -231,7 +230,7 @@ public class ClientUserInitService {
         try {
             JSONObject object = new JSONObject();
             object.put("platform", LoggerConstants.PLATFORM_ANDROID);
-            object.put("uid", UidTool.uid());
+            object.put("uid", UIDUtils.uid());
             object.put("alias", SystemConfig.alias());
             object.put("model", Build.MODEL);
             object.put("imei", SystemInfo.imei());

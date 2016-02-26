@@ -7,7 +7,7 @@ import com.getui.logful.LoggerConstants;
 import com.getui.logful.db.DatabaseManager;
 import com.getui.logful.entity.LogFileMeta;
 import com.getui.logful.util.Checksum;
-import com.getui.logful.util.DateTimeUtil;
+import com.getui.logful.util.DateTimeUtils;
 import com.getui.logful.util.LogStorage;
 import com.getui.logful.util.StringUtils;
 
@@ -53,7 +53,7 @@ public class RefreshScheduleTask extends AbstractTask {
                     }
                     // 更新今天之前的日志文件状态信息
                     if (!meta.isEof() && meta.getStatus() == LoggerConstants.STATE_NORMAL) {
-                        long dayStartTimeStamp = DateTimeUtil.dayStartTimestamp();
+                        long dayStartTimeStamp = DateTimeUtils.dayStartTimestamp();
                         if (meta.getCreateTime() < dayStartTimeStamp) {
                             meta.setEof(true);
                             meta.setStatus(LoggerConstants.STATE_WILL_UPLOAD);

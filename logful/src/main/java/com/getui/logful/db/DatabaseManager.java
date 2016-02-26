@@ -13,7 +13,7 @@ import com.getui.logful.entity.AttachmentFileMeta;
 import com.getui.logful.entity.CrashReportFileMeta;
 import com.getui.logful.entity.LogFileMeta;
 import com.getui.logful.entity.MsgLayout;
-import com.getui.logful.util.DateTimeUtil;
+import com.getui.logful.util.DateTimeUtils;
 import com.getui.logful.util.LogUtil;
 import com.getui.logful.util.StringUtils;
 
@@ -50,7 +50,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static final String CRASH_FIELD_ID = "id";
     private static final String CRASH_FIELD_FILENAME = "filename";
     private static final String CRASH_FIELD_LOCATION = "location";
-    private static final String CRASH_FIELD_CAUSE = "cause";
     private static final String CRASH_FIELD_CREATE_TIME = "create_time";
     private static final String CRASH_FIELD_DELETE_TIME = "delete_time";
     private static final String CRASH_FIELD_STATUS = "status";
@@ -72,7 +71,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private static final String AND = " AND ";
 
-    private static final int SCHEMA_VERSION = 16;
+    private static final int SCHEMA_VERSION = 18;
 
     private static ConcurrentHashMap<String, Short> layoutMap = new ConcurrentHashMap<String, Short>();
 
@@ -108,7 +107,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         // Create crash report file meta table.
         String createCrashReportFileMetaTable =
                 "CREATE TABLE " + TABLE_CRASH_REPORT_FILE_META + "(" + CRASH_FIELD_ID + " INTEGER PRIMARY KEY,"
-                        + CRASH_FIELD_FILENAME + text + CRASH_FIELD_LOCATION + integer + CRASH_FIELD_CAUSE + text
+                        + CRASH_FIELD_FILENAME + text + CRASH_FIELD_LOCATION + integer
                         + CRASH_FIELD_CREATE_TIME + integer + CRASH_FIELD_DELETE_TIME + integer + CRASH_FIELD_STATUS + integer
                         + CRASH_FIELD_FILE_MD5 + " TEXT" + ")";
 
@@ -133,7 +132,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + LoggerConstants.DATABASE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOG_FILE_META);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ATTACHMENT_FILE_META);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MSG_LAYOUT);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CRASH_REPORT_FILE_META);
         onCreate(db);
     }
 
@@ -183,7 +185,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         SQLiteDatabase db = manager.getWritableDatabase();
         if (meta.getId() == -1) {
             // 插入当前日期方便查询
-            values.put(LOG_FIELD_DATE_STRING, DateTimeUtil.dateString());
+            values.put(LOG_FIELD_DATE_STRING, DateTimeUtils.dateString());
             long result = db.insert(TABLE_LOG_FILE_META, null, values);
             return result != -1;
         } else {
@@ -200,7 +202,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(CRASH_FIELD_FILENAME, meta.getFilename());
         values.put(CRASH_FIELD_LOCATION, meta.getLocation());
-        values.put(CRASH_FIELD_CAUSE, meta.getCause());
         values.put(CRASH_FIELD_CREATE_TIME, meta.getCreateTime());
         values.put(CRASH_FIELD_DELETE_TIME, meta.getDeleteTime());
         values.put(CRASH_FIELD_STATUS, meta.getStatus());
@@ -348,7 +349,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         DatabaseManager manager = DatabaseManager.manager();
         SQLiteDatabase db = manager.getWritableDatabase();
 
-        String date = DateTimeUtil.dateString();
+        String date = DateTimeUtils.dateString();
 
         ContentValues values = new ContentValues();
         values.put(LOG_FIELD_EOF, true);
@@ -387,7 +388,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
         String loggerName = logEvent.getLoggerName();
         int level = logEvent.getLevel();
-        String date = DateTimeUtil.dateString();
+        String date = DateTimeUtils.dateString();
         String selection =
                 LOG_FIELD_LOGGER_NAME + "=?" + AND + LOG_FIELD_LEVEL + "=?" + AND + LOG_FIELD_DATE_STRING + "=?";
         String[] selectionArgs = new String[]{loggerName, String.valueOf(level), date};
@@ -647,7 +648,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         meta.setId(cursor.getLong(cursor.getColumnIndex(CRASH_FIELD_ID)));
         meta.setFilename(cursor.getString(cursor.getColumnIndex(CRASH_FIELD_FILENAME)));
         meta.setLocation(cursor.getInt(cursor.getColumnIndex(CRASH_FIELD_LOCATION)));
-        meta.setCause(cursor.getString(cursor.getColumnIndex(CRASH_FIELD_CAUSE)));
         meta.setCreateTime(cursor.getLong(cursor.getColumnIndex(CRASH_FIELD_CREATE_TIME)));
         meta.setDeleteTime(cursor.getLong(cursor.getColumnIndex(CRASH_FIELD_DELETE_TIME)));
         meta.setStatus(cursor.getInt(cursor.getColumnIndex(CRASH_FIELD_STATUS)));

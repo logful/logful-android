@@ -1,4 +1,4 @@
-package com.getui.logful.exception;
+package com.getui.logful.crash;
 
 
 import java.util.Collection;

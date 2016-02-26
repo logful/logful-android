@@ -1,8 +1,9 @@
-package com.getui.logful.exception;
+package com.getui.logful.crash;
 
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.widget.Toast;
@@ -14,20 +15,16 @@ import com.getui.logful.util.activitylifecycled.ActivityLifecycleCallbacksCompat
 import com.getui.logful.util.activitylifecycled.ApplicationHelper;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
 
-public class ExceptionReporter implements Thread.UncaughtExceptionHandler, ActivityLifecycleCallbacksCompat {
+public class CrashReporter implements Thread.UncaughtExceptionHandler, ActivityLifecycleCallbacksCompat {
 
-    private static final String TAG = ExceptionReporter.class.getSimpleName();
+    private static final String TAG = CrashReporter.class.getSimpleName();
 
     private int elapsedTime = 0;
 
     private boolean toastWaitEnded = true;
 
     private static final int TOAST_WAIT_DURATION = 200;
-
-    private final List<ReportSender> reportSenders = new ArrayList<ReportSender>();
 
     private WeakReference<Activity> lastActivityCreated = new WeakReference<Activity>(null);
 
@@ -39,20 +36,20 @@ public class ExceptionReporter implements Thread.UncaughtExceptionHandler, Activ
     private static Thread.UncaughtExceptionHandler defaultUncaughtExceptionHandler;
 
     private static class ClassHolder {
-        static ExceptionReporter instance = new ExceptionReporter();
+        static CrashReporter instance = new CrashReporter();
     }
 
-    public static ExceptionReporter reporter() {
+    public static CrashReporter reporter() {
         return ClassHolder.instance;
     }
 
     public static void caught() {
-        ExceptionReporter reporter = reporter();
+        CrashReporter reporter = reporter();
         defaultUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(reporter);
     }
 
-    public ExceptionReporter() {
+    public CrashReporter() {
         Application application = LoggerFactory.application();
         if (application == null) {
             throw new NullPointerException("Application is null!");
@@ -60,29 +57,22 @@ public class ExceptionReporter implements Thread.UncaughtExceptionHandler, Activ
 
         this.startTimeMillis = System.currentTimeMillis();
 
-        if (Compatibility.getAPILevel() >= Compatibility.VersionCodes.ICE_CREAM_SANDWICH) {
+        if (Compatibility.getAPILevel() >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             ApplicationHelper.registerActivityLifecycleCallbacks(application, this);
         }
-
-        HttpReportSender httpSender = new HttpReportSender();
-        reportSenders.add(httpSender);
-
-        FileReportSender fileSender = new FileReportSender();
-        reportSenders.add(fileSender);
     }
 
     @Override
     public void uncaughtException(Thread thread, Throwable throwable) {
-        ReportBuilder reportBuilder = ReportBuilder.create(thread, throwable);
-        report(thread, throwable, reportBuilder);
+        report(thread, throwable);
     }
 
     public static long getStartTimeMillis() {
-        ExceptionReporter reporter = reporter();
+        CrashReporter reporter = reporter();
         return reporter.startTimeMillis;
     }
 
-    private void report(final Thread thread, final Throwable throwable, final ReportBuilder reportBuilder) {
+    private void report(final Thread thread, final Throwable throwable) {
         final Context context = LoggerFactory.context();
         if (context == null) {
             exitApplication(thread, throwable);
@@ -107,7 +97,7 @@ public class ExceptionReporter implements Thread.UncaughtExceptionHandler, Activ
                         // Wait a bit to let the user read the toast
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
-                        LogUtil.e("ExceptionReporter", "InterruptedException", e);
+                        LogUtil.e(TAG, "", e);
                     }
                     elapsedTime += 100;
                 }
@@ -115,7 +105,12 @@ public class ExceptionReporter implements Thread.UncaughtExceptionHandler, Activ
             }
         }).start();
 
-        final CrashReportData crashData = reportBuilder.build();
+        try {
+            CrashReportWriter.write(thread, throwable);
+        } catch (Exception e) {
+            LogUtil.e(TAG, "", e);
+        }
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -123,13 +118,9 @@ public class ExceptionReporter implements Thread.UncaughtExceptionHandler, Activ
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
-                        LogUtil.e("ExceptionReporter", "InterruptedException", e);
+                        LogUtil.e(TAG, "", e);
                     }
                 }
-                for (ReportSender sender : reportSenders) {
-                    sender.send(context, crashData);
-                }
-
                 exitApplication(thread, throwable);
             }
         }).start();

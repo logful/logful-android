@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class DateTimeUtil {
+public class DateTimeUtils {
 
     public static String dateString() {
         return new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());

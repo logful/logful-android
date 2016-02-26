@@ -1,7 +1,7 @@
 package com.getui.logful.security;
 
 import com.getui.logful.util.SystemConfig;
-import com.getui.logful.util.UidTool;
+import com.getui.logful.util.UIDUtils;
 
 public class DefaultSecurityProvider implements SecurityProvider {
 
@@ -20,7 +20,7 @@ public class DefaultSecurityProvider implements SecurityProvider {
     @Override
     public byte[] salt() {
         if (saltData == null) {
-            this.saltData = UidTool.uid().getBytes();
+            this.saltData = UIDUtils.uid().getBytes();
         }
         return saltData;
     }

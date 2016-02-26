@@ -1,7 +1,6 @@
 package com.getui.logful.net;
 
 import android.content.Context;
-import android.util.Base64;
 
 import com.getui.logful.LoggerConfigurator;
 import com.getui.logful.LoggerConstants;
@@ -12,14 +11,14 @@ import com.getui.logful.util.Checksum;
 import com.getui.logful.util.ConnectivityState;
 import com.getui.logful.util.CryptoTool;
 import com.getui.logful.util.FileUtils;
-import com.getui.logful.util.GzipTool;
+import com.getui.logful.util.GzipUtils;
 import com.getui.logful.util.HttpRequest;
 import com.getui.logful.util.LogStorage;
 import com.getui.logful.util.LogUtil;
 import com.getui.logful.util.StringUtils;
 import com.getui.logful.util.SystemConfig;
 import com.getui.logful.util.SystemInfo;
-import com.getui.logful.util.UidTool;
+import com.getui.logful.util.UIDUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,13 +78,13 @@ public class UploadLogFileEvent extends UploadEvent {
         }
 
         String cacheFilePath = cacheDir + "/" + meta.getFilename();
-        if (GzipTool.compress(inFilePath, cacheFilePath)) {
+        if (GzipUtils.compress(inFilePath, cacheFilePath)) {
             String fileSumString = Checksum.fileMD5(cacheFilePath);
             byte[] data = null;
             try {
                 JSONObject object = new JSONObject();
                 object.put("platform", LoggerConstants.PLATFORM_ANDROID);
-                object.put("uid", UidTool.uid());
+                object.put("uid", UIDUtils.uid());
                 object.put("appId", SystemInfo.appId());
                 object.put("loggerName", meta.getLoggerName());
                 object.put("layouts", layouts);

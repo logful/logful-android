@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.getui.logful.sample"
-        minSdkVersion 10
+        minSdkVersion 11
         targetSdkVersion 22
         versionCode 100
         versionName "0.2.1"

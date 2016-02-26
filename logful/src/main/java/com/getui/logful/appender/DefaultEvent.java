@@ -3,7 +3,7 @@ package com.getui.logful.appender;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.getui.logful.db.DatabaseManager;
-import com.getui.logful.util.DateTimeUtil;
+import com.getui.logful.util.DateTimeUtils;
 
 public class DefaultEvent extends AbstractLogEvent {
 
@@ -118,6 +118,6 @@ public class DefaultEvent extends AbstractLogEvent {
 
     @Override
     public String getDateString() {
-        return DateTimeUtil.timeString(timestamp);
+        return DateTimeUtils.timeString(timestamp);
     }
 }

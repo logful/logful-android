@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.getui.logful.Logger;
 import com.getui.logful.LoggerFactory;
+import com.getui.logful.util.LogUtil;
 
 import java.util.UUID;
 

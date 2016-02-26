@@ -3,7 +3,7 @@ package com.getui.logful.util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class BytesUtil {
+public class BytesUtils {
 
     public static byte[] longToBytes(long value) {
         ByteBuffer buffer = ByteBuffer.allocate(8);

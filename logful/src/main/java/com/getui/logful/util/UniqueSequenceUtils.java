@@ -5,19 +5,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.getui.logful.db.DatabaseManager;
 
-public class UniqueSequenceTool {
+public class UniqueSequenceUtils {
 
     private AtomicInteger atomicInteger;
 
     private static class ClassHolder {
-        static UniqueSequenceTool tool = new UniqueSequenceTool();
+        static UniqueSequenceUtils tool = new UniqueSequenceUtils();
     }
 
-    public static UniqueSequenceTool too() {
+    public static UniqueSequenceUtils too() {
         return ClassHolder.tool;
     }
 
-    public UniqueSequenceTool() {
+    public UniqueSequenceUtils() {
         int maxId = DatabaseManager.findMaxAttachmentSequence();
         if (maxId == -1) {
             Random random = new Random();
@@ -34,7 +34,7 @@ public class UniqueSequenceTool {
      * @return Unique sequence int number
      */
     public static int sequence() {
-        UniqueSequenceTool tool = too();
+        UniqueSequenceUtils tool = too();
         return tool.atomicInteger.getAndIncrement();
     }
 }

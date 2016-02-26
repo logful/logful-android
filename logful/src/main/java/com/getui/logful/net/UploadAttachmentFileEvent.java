@@ -14,7 +14,7 @@ import com.getui.logful.util.LogUtil;
 import com.getui.logful.util.StringUtils;
 import com.getui.logful.util.SystemConfig;
 import com.getui.logful.util.SystemInfo;
-import com.getui.logful.util.UidTool;
+import com.getui.logful.util.UIDUtils;
 
 import java.io.File;
 
@@ -74,7 +74,7 @@ public class UploadAttachmentFileEvent extends UploadEvent {
 
             request.part("platform", "android");
             request.part("sdkVersion", LoggerFactory.version());
-            request.part("uid", UidTool.uid());
+            request.part("uid", UIDUtils.uid());
             request.part("appId", SystemInfo.appId());
             request.part("fileSum", sum);
             request.part("attachmentId", meta.getSequence());

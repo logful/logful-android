@@ -8,9 +8,9 @@ import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.Cipher;
 
-public class RSAUtil {
+public class RSAUtils {
 
-    private static final String TAG = "RSAUtil";
+    private static final String TAG = "RSAUtils";
 
     private static Cipher encryptCipher;
 

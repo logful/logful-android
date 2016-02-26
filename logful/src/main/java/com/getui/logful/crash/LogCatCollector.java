@@ -1,4 +1,6 @@
-package com.getui.logful.exception;
+package com.getui.logful.crash;
+
+import android.os.Build;
 
 import com.getui.logful.LoggerConstants;
 import com.getui.logful.util.Compatibility;
@@ -28,7 +30,7 @@ public class LogCatCollector {
      * @param bufferName The name of the buffer to be read: "main" (default), "radio" or "events".
      * @return A {@link String} containing the latest lines of the output.
      */
-    public static String collectLogCat(String bufferName) {
+    public static String collect(String bufferName) {
         final int myPid = android.os.Process.myPid();
         String myPidStr = null;
         if (myPid > 0) {
@@ -50,7 +52,7 @@ public class LogCatCollector {
         final int tailIndex = logcatArgumentsList.indexOf("-t");
         if (tailIndex > -1 && tailIndex < logcatArgumentsList.size()) {
             tailCount = Integer.parseInt(logcatArgumentsList.get(tailIndex + 1));
-            if (Compatibility.getAPILevel() < Compatibility.VersionCodes.FROYO) {
+            if (Compatibility.getAPILevel() < Build.VERSION_CODES.FROYO) {
                 logcatArgumentsList.remove(tailIndex + 1);
                 logcatArgumentsList.remove(tailIndex);
                 logcatArgumentsList.add("-d");

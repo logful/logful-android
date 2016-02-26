@@ -28,21 +28,21 @@ import com.getui.logful.appender.DefaultEvent;
 import com.getui.logful.db.DatabaseManager;
 import com.getui.logful.entity.AttachmentFileMeta;
 
-public class CaptureTool {
+public class CaptureUtils {
 
-    private static final String TAG = "CaptureTool";
+    private static final String TAG = "CaptureUtils";
     private static ThreadPoolExecutor executor;
 
     private static class ClassHolder {
-        static CaptureTool tool = new CaptureTool();
+        static CaptureUtils tool = new CaptureUtils();
     }
 
-    public static CaptureTool tool() {
+    public static CaptureUtils tool() {
         return ClassHolder.tool;
     }
 
     public static void captureThenLog(Logger logger, int level, String tag, String msg) {
-        CaptureTool tool = tool();
+        CaptureUtils tool = tool();
         tool.doAction(logger, level, tag, msg);
     }
 
@@ -57,7 +57,7 @@ public class CaptureTool {
             dirPath = LogStorage.internalAttachmentDir();
         }
         if (!StringUtils.isEmpty(dirPath)) {
-            int sequence = UniqueSequenceTool.sequence();
+            int sequence = UniqueSequenceUtils.sequence();
             String filename = sequence + ".jpg";
             final String filePath = dirPath + "/" + filename;
             // Submit capture task.

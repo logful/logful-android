@@ -121,4 +121,10 @@ public class LoggerConstants {
     public static final boolean DEFAULT_USE_NATIVE_CRYPTOR = true;
 
     public static final int PLATFORM_ANDROID = 1;
+
+    public static final String QUERY_PARAM_SDK_VERSION = "sdk";
+
+    public static final String QUERY_PARAM_PLATFORM = "platform";
+
+    public static final String QUERY_PARAM_UID = "uid";
 }

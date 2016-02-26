@@ -10,8 +10,8 @@ import android.os.Environment;
 
 import com.getui.logful.LoggerFactory;
 
-public class UidTool {
-    private static final String TAG = "UidTool";
+public class UIDUtils {
+    private static final String TAG = "UIDUtils";
 
     private static String uid;
     private static final String UID_DIR = ".LogfulConfig";
@@ -22,36 +22,36 @@ public class UidTool {
             return "";
         }
 
-        if (!StringUtils.isEmpty(UidTool.uid)) {
-            return UidTool.uid;
+        if (!StringUtils.isEmpty(UIDUtils.uid)) {
+            return UIDUtils.uid;
         }
 
         // Read exist uid.
-        String temp = UidTool.readUid(context);
+        String temp = UIDUtils.readUid(context);
         if (!StringUtils.isEmpty(temp)) {
-            UidTool.set(temp);
-            return UidTool.uid;
+            UIDUtils.set(temp);
+            return UIDUtils.uid;
         }
 
-        return UidTool.randomUid();
+        return UIDUtils.randomUid();
     }
 
     private static String generate(String original) {
         String temp = UUID.nameUUIDFromBytes(original.getBytes()).toString();
-        UidTool.saveUid(temp);
-        UidTool.set(temp);
-        return UidTool.uid;
+        UIDUtils.saveUid(temp);
+        UIDUtils.set(temp);
+        return UIDUtils.uid;
     }
 
     private static String randomUid() {
         String temp = UUID.randomUUID().toString();
-        UidTool.saveUid(temp);
-        UidTool.set(temp);
-        return UidTool.uid;
+        UIDUtils.saveUid(temp);
+        UIDUtils.set(temp);
+        return UIDUtils.uid;
     }
 
     private static void set(String string) {
-        UidTool.uid = string.replace("-", "").toLowerCase();
+        UIDUtils.uid = string.replace("-", "").toLowerCase();
     }
 
     private static void saveUid(String uid) {
@@ -59,7 +59,7 @@ public class UidTool {
             File dir = new File(Environment.getExternalStorageDirectory(), UID_DIR);
             if (!dir.exists()) {
                 if (dir.mkdirs()) {
-                    UidTool.createUidFile(dir.getAbsolutePath(), uid);
+                    UIDUtils.createUidFile(dir.getAbsolutePath(), uid);
                 }
             } else if (dir.isDirectory()) {
                 File[] files = dir.listFiles();
@@ -70,12 +70,12 @@ public class UidTool {
                     }
                 }
                 if (successful) {
-                    UidTool.createUidFile(dir.getAbsolutePath(), uid);
+                    UIDUtils.createUidFile(dir.getAbsolutePath(), uid);
                 }
             } else {
                 if (dir.delete()) {
                     if (dir.mkdirs()) {
-                        UidTool.createUidFile(dir.getAbsolutePath(), uid);
+                        UIDUtils.createUidFile(dir.getAbsolutePath(), uid);
                     }
                 }
             }
